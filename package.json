@@ -1,0 +1,26 @@
+{
+  "name": "psychometricjs",
+  "version": "1.0.0",
+  "description": "Library of Psychometric formulae",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Broilan/PsychometricJS.git"
+  },
+  "keywords": [
+    "statistics",
+    "psychometrics"
+  ],
+  "author": "Tanner Eschmann",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Broilan/PsychometricJS/issues"
+  },
+  "homepage": "https://github.com/Broilan/PsychometricJS#readme",
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
