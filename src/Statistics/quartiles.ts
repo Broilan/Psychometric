@@ -1,4 +1,4 @@
-import { percentile } from "./percentiles";
+import { percentile } from "./percentile";
 
 /**
  * Calculate the quartiles (Q1, Q2, Q3) of an array of numbers.
