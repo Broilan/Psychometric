@@ -7,7 +7,7 @@ import { standardDeviation } from "./standardDeviation";
  * @returns Skewness of the data.
  */
 export function skewness(values: number[]): number {
-    const meanValue = mean(values);
+    const meanValue = mean.arithmetic(values);
     const n = values.length;
     const stdDev = standardDeviation(values);
     return (

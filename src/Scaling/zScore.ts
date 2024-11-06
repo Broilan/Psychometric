@@ -17,7 +17,7 @@ export function zScore(value: number, meanValue: number, stdDev: number): number
  * @returns Array of Z-scores corresponding to each value in the dataset.
  */
 export function zScores(values: number[]): number[] {
-    const meanValue = mean(values);
+    const meanValue = mean.arithmetic(values);
     const stdDev = standardDeviation(values);
 
     return values.map(value => zScore(value, meanValue, stdDev));

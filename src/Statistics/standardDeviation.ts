@@ -6,5 +6,5 @@ import { variance } from "./variance";
  * @returns Standard deviation of the array.
  */
 export function standardDeviation(values: number[]): number {
-    return Math.sqrt(variance(values));
+    return Math.sqrt(variance.sample(values));
 }

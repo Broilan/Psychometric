@@ -1,5 +1,5 @@
-import { covariance } from "./covariance";
-import { standardDeviation } from "./standardDeviation";
+import { covariance } from "../Statistics/covariance";
+import { standardDeviation } from "../Statistics/standardDeviation";
 
 /**
  * Calculate the Pearson correlation coefficient between two arrays of numbers.

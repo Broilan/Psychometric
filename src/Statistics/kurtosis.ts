@@ -7,7 +7,7 @@ import { standardDeviation } from "./standardDeviation";
  * @returns Kurtosis of the data.
  */
 export function kurtosis(values: number[]): number {
-    const meanValue = mean(values);
+    const meanValue = mean.arithmetic(values);
     const n = values.length;
     const stdDev = standardDeviation(values);
     return (

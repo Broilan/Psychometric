@@ -19,7 +19,7 @@ export function tScore(value: number, meanValue: number, stdDev: number): number
  * @returns Array of T-scores corresponding to each value in the dataset.
  */
 export function tScores(values: number[]): number[] {
-    const meanValue = mean(values);
+    const meanValue = mean.arithmetic(values);
     const stdDev = standardDeviation(values);
 
     return values.map(value => tScore(value, meanValue, stdDev));

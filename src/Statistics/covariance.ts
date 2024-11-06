@@ -9,7 +9,7 @@ import { mean } from "./mean";
 export function covariance(x: number[], y: number[]): number {
     if (x.length !== y.length) throw new Error("Arrays must be of the same length");
 
-    const meanX = mean(x);
-    const meanY = mean(y);
+    const meanX = mean.arithmetic(x);
+    const meanY = mean.arithmetic(y);
     return x.reduce((acc, xi, i) => acc + (xi - meanX) * (y[i] - meanY), 0) / x.length;
 }
