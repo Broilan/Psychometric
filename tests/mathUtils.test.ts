@@ -4,7 +4,7 @@ describe("Statistical functions", () => {
     const data = [1, 2, 3, 4, 5];
 
     test("mean calculates the average correctly", () => {
-        expect(mean(data)).toBe(3);
+        expect(mean.arithmetic(data)).toBe(3);
     });
 
     test("median finds the middle value correctly", () => {
@@ -21,7 +21,7 @@ describe("Statistical functions", () => {
     });
 
     test("variance calculates the spread of the data", () => {
-        expect(variance(data)).toBeCloseTo(2.5); // Use toBeCloseTo for potential floating-point precision
+        expect(variance.sample(data)).toBeCloseTo(2.5); // Use toBeCloseTo for potential floating-point precision
     });
 
     test("standard deviation calculates the spread of the data", () => {

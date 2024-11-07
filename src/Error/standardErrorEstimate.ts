@@ -4,7 +4,7 @@
  * @param predicted - Array of predicted values.
  * @returns Standard Error of Estimate.
  */
-function standardErrorOfEstimate(observed: number[], predicted: number[]): number {
+export function standardErrorOfEstimate(observed: number[], predicted: number[]): number {
     if (observed.length !== predicted.length) throw new Error("Arrays must be of the same length");
     
     const n = observed.length;
