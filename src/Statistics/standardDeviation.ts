@@ -7,6 +7,8 @@ import { variance } from "./variance";
  * @returns Standard deviation of the array.
  */
 export function standardDeviation(values: number[], isSample: boolean = true): number {
+    if (values.length === 0) return NaN;
+    if (values.length === 1) return 0;
     const varianceValue = isSample ? variance.sample(values) : variance.population(values);
     return Math.sqrt(varianceValue);
 }
