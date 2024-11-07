@@ -6,7 +6,7 @@
  * @returns Criterion-related validity correlation.
  * @throws Error if input arrays are of different lengths.
  */
-function criterionRelatedValidity(
+export function criterionRelatedValidity(
     testScores: number[],
     criterionScores: number[],
     correlationFunc: (a: number[], b: number[]) => number

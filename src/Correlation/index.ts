@@ -1,4 +1,4 @@
-export { pearsonCorrelation as pcc } from "./pearsonCC";
-export { spearmanCorrelation as scc } from "./spearmanCC";
-export { pointBiserialCorrelation as pbs } from "./pointBiserial";
-export { phiCoefficient as phiC } from "./phiCoefficent";
+export { pearsonCorrelationCoefficient as pearsonC } from "./pearsonCorrelationCoefficient";
+export { spearmanRankCorrelationCoefficient as spearmanC } from "./spearmanRankCorrelationCoefficient";
+export { pointBiserialCorrelation as pointBiserialC } from "./pointBiserialCorrelation";
+export { phiCoefficient as phiC } from "./phiCoefficient";

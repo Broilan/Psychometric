@@ -5,7 +5,7 @@
  * @returns Split-Half Reliability coefficient.
  * @throws Error if no correlation function is provided.
  */
-function splitHalf(
+export function splitHalfReliability(
     scores: number[], 
     correlationFunc?: (...args: any[]) => number
 ): number {

@@ -5,7 +5,7 @@ import { mean, variance } from '../Statistics';
  * @param items - Array of item arrays, where each inner array represents scores for an item across respondents.
  * @returns Cronbach's Alpha for internal consistency.
  */
-function cronbachsAlpha(items: number[][]): number {
+export function cronbachsAlpha(items: number[][]): number {
     const itemCount = items.length;
     const respondentCount = items[0].length;
 

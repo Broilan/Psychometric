@@ -5,7 +5,7 @@
  * @returns Inter-Rater Reliability coefficient.
  * @throws Error if no correlation function is provided.
  */
-function interRater(
+export function interRaterReliability(
     ratings: number[][], 
     correlationFunc?: (...args: any[]) => number
 ): number {

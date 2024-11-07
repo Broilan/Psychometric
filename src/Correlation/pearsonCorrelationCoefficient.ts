@@ -11,7 +11,7 @@ import { standardDeviation } from "../Statistics/standardDeviation";
  * @returns Pearson correlation coefficient.
  * @throws Error if insufficient data is provided to calculate the Pearson correlation.
  */
-export function pearsonCorrelation(
+export function pearsonCorrelationCoefficient(
     x?: number[], 
     y?: number[], 
     stdDevX?: number, 

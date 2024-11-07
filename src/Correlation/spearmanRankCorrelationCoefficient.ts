@@ -8,7 +8,7 @@
  * @returns Spearman correlation coefficient (rs).
  * @throws Error if insufficient data is provided to calculate the Spearman correlation.
  */
-export function spearmanCorrelation(
+export function spearmanRankCorrelationCoefficient(
     x?: number[], 
     y?: number[], 
     rankX?: number[], 

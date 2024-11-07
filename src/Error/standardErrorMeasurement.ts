@@ -9,7 +9,7 @@ import { standardDeviation } from "../Statistics";
  * @returns Standard error of the mean.
  * @throws Error if insufficient data is provided to calculate the standard error.
  */
-export function standardError(
+export function standardErrorMeasurement(
     values?: number[], 
     stdDev?: number, 
     n?: number

@@ -4,7 +4,7 @@
  * @param discriminantCorrelations - Array of correlation coefficients with different constructs.
  * @returns Average convergent and discriminant correlations.
  */
-function constructValidity(
+export function constructValidity(
     convergentCorrelations: number[],
     discriminantCorrelations: number[]
 ): { averageConvergent: number; averageDiscriminant: number; constructValidityIndex: number } {

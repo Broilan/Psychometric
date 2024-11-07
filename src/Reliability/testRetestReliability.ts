@@ -6,7 +6,7 @@
  * @returns Test-Retest Reliability coefficient.
  * @throws Error if no correlation function is provided.
  */
-function testRetest(
+export function testRetestReliability(
     time1: number[], 
     time2: number[], 
     correlationFunc?: (...args: any[]) => number
