@@ -1,5 +1,4 @@
-import { mean } from '../Statistics/mean';
-import { standardDeviation } from '../Statistics/standardDeviation';
+import { mean, standardDeviation } from 'simple-statistics';
 
 /**
  * Calculate the point-biserial correlation between a binary and continuous variable.
@@ -28,8 +27,8 @@ export function pointBiserialCorrelation(
     const n1 = binary ? binary.filter(val => val === 1).length : undefined;
     const n0 = n - (n1 ?? 0);
 
-    const calculatedMean1 = mean1 ?? (binary && continuous ? mean.arithmetic(continuous.filter((_, i) => binary[i] === 1)) : undefined);
-    const calculatedMean0 = mean0 ?? (binary && continuous ? mean.arithmetic(continuous.filter((_, i) => binary[i] === 0)) : undefined);
+    const calculatedMean1 = mean1 ?? (binary && continuous ? mean(continuous.filter((_, i) => binary[i] === 1)) : undefined);
+    const calculatedMean0 = mean0 ?? (binary && continuous ? mean(continuous.filter((_, i) => binary[i] === 0)) : undefined);
     const calculatedOverallSD = overallSD ?? (continuous ? standardDeviation(continuous) : undefined);
 
     // Ensure all necessary values are available for calculation
@@ -39,4 +38,5 @@ export function pointBiserialCorrelation(
 
     return ((calculatedMean1 - calculatedMean0) / calculatedOverallSD) * Math.sqrt((n1 * n0) / n ** 2);
 }
+
 

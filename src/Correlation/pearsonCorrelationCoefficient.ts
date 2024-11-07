@@ -1,5 +1,4 @@
-import { covariance } from "../Statistics/covariance";
-import { stdDev } from "../Statistics";
+import { standardDeviation, sampleCovariance } from 'simple-statistics';
 
 /**
  * Calculate the Pearson correlation coefficient between two datasets or with pre-calculated values.
@@ -24,9 +23,9 @@ export function pearsonCorrelationCoefficient(
     }
 
     // Calculate standard deviations and covariance if datasets are provided
-    const calculatedStdDevX = stdDevX ?? (x ? stdDev(x) : undefined);
-    const calculatedStdDevY = stdDevY ?? (y ? stdDev(y) : undefined);
-    const calculatedCov = cov ?? (x && y ? covariance(x, y) : undefined);
+    const calculatedStdDevX = stdDevX ?? (x ? standardDeviation(x) : undefined);
+    const calculatedStdDevY = stdDevY ?? (y ? standardDeviation(y) : undefined);
+    const calculatedCov = cov ?? (x && y ? sampleCovariance(x, y) : undefined);
 
     // Ensure all necessary values are available for calculation
     if (calculatedStdDevX === undefined || calculatedStdDevY === undefined || calculatedCov === undefined) {

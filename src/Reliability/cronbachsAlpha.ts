@@ -1,4 +1,4 @@
-import { mean, variance } from '../Statistics';
+import { mean, variance } from 'simple-statistics';
 
 /**
  * Calculate Cronbach's Alpha.
@@ -9,9 +9,9 @@ export function cronbachsAlpha(items: number[][]): number {
     const itemCount = items.length;
     const respondentCount = items[0].length;
 
-    const itemVariances = items.map(item => variance.sample(item));
-    const totalVariance = variance.sample(
-        items[0].map((_, i) => mean.arithmetic(items.map(item => item[i])))
+    const itemVariances = items.map(item => variance(item));
+    const totalVariance = variance(
+        items[0].map((_, i) => mean(items.map(item => item[i])))
     );
 
     const sumOfItemVariances = itemVariances.reduce((acc, v) => acc + v, 0);

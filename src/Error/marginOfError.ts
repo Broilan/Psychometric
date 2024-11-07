@@ -15,15 +15,16 @@ export function marginOfError(
     standardError?: number
 ): number {
     // Calculate standard error if not provided
-    const calculatedSE = standardError ?? (stdDev !== undefined && sampleSize !== undefined
+    const effectiveSE = standardError ?? (stdDev !== undefined && sampleSize !== undefined
         ? stdDev / Math.sqrt(sampleSize)
         : undefined);
 
     // Ensure we have standard error for the calculation
-    if (calculatedSE === undefined) {
-        throw new Error("Insufficient data to calculate margin of error. Provide either stdDev and sampleSize or a pre-calculated standardError.");
+    if (effectiveSE === undefined) {
+        throw new Error("Insufficient data to calculate margin of error. Provide either stdDev and sampleSize, or a pre-calculated standardError.");
     }
 
-    return zScore * calculatedSE;
+    return zScore * effectiveSE;
 }
+
 

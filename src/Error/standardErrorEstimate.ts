@@ -14,26 +14,30 @@ export function standardErrorOfEstimate(
     rss?: number, 
     n?: number
 ): number {
-    // If observed and predicted are provided, calculate RSS and n
+    // Ensure that either observed/predicted pairs or rss and n are provided
     if (!rss && (!observed || !predicted)) {
         throw new Error("Provide either observed and predicted arrays or a pre-calculated rss with the number of observations.");
     }
     
+    // Check if observed and predicted arrays are the same length
     if (observed && predicted && observed.length !== predicted.length) {
         throw new Error("Observed and predicted arrays must be of the same length.");
     }
 
-    const calculatedRSS = rss ?? (observed && predicted
+    // Calculate RSS if not provided
+    const residualSumOfSquares = rss ?? (observed && predicted
         ? observed.reduce((sum, obs, i) => sum + (obs - predicted[i]) ** 2, 0)
         : undefined);
     
-    const calculatedN = n ?? observed?.length;
+    // Calculate sample size if not provided
+    const sampleSize = n ?? observed?.length;
 
-    // Ensure we have RSS and n to proceed
-    if (calculatedRSS === undefined || calculatedN === undefined) {
-        throw new Error("Insufficient data to calculate standard error of estimate.");
+    // Ensure both RSS and sample size are available for the calculation
+    if (residualSumOfSquares === undefined || sampleSize === undefined) {
+        throw new Error("Insufficient data to calculate standard error of estimate. Provide complete data or calculated values.");
     }
 
-    return Math.sqrt(calculatedRSS / (calculatedN - 2));
+    return Math.sqrt(residualSumOfSquares / (sampleSize - 2));
 }
+
 
