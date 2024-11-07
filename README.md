@@ -27,7 +27,7 @@ Functions to calculate various correlation coefficients.
 
 Example:
 ```typescript
-import { pearsonCorrelationCoefficient } from 'psychometrics/correlation';
+const { pearsonCorrelationCoefficient } = require('psychometric/correlation');
 const correlation = pearsonCorrelationCoefficient([1, 2, 3], [4, 5, 6]);
 console.log(correlation);
 ```
@@ -43,7 +43,7 @@ Functions to compute various error estimates, including confidence intervals and
 
 Example:
 ```typescript
-import { marginOfError } from 'psychometrics/error';
+const { marginOfError } = require('psychometrics/error');
 const moe = marginOfError(10, 100);
 console.log(moe);
 ```
@@ -61,7 +61,7 @@ Functions for assessing the reliability of measurements.
 
 Example:
 ```typescript
-import { cronbachsAlpha } from 'psychometrics/reliability';
+const { cronbachsAlpha } = require('psychometric/reliability');
 const alpha = cronbachsAlpha([/* your data */]);
 console.log(alpha);
 ```
@@ -75,7 +75,7 @@ Functions to assess the validity of test measures.
 
 Example:
 ```typescript
-import { constructValidity } from 'psychometrics/validity';
+const { constructValidity } = require('psychometric/validity');
 const validity = constructValidity([/* your data */]);
 console.log(validity);
 ```

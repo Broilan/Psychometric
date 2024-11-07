@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "lib": ["ES2017", "DOM"],
-    "outDir": "./dist",
-    "rootDir": "src",
-    "declaration": true,
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM"],
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "isolatedModules": true,
     "strict": true
   },
   "include": ["src/**/*"]

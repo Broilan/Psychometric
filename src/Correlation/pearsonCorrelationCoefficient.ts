@@ -1,4 +1,4 @@
-import { standardDeviation, sampleCovariance } from 'simple-statistics';
+import { sampleCovariance, standardDeviation } from 'simple-statistics';
 
 /**
  * Calculate the Pearson correlation coefficient between two datasets or with pre-calculated values.
