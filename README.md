@@ -7,7 +7,7 @@ A TypeScript-compatible package offering a comprehensive suite of psychometric f
 Install the package via npm:
 
 ```bash
-npm install psychometrics
+npm install psychometric
 ```
 
 ## Usage
@@ -43,7 +43,7 @@ Functions to compute various error estimates, including confidence intervals and
 
 Example:
 ```typescript
-const { marginOfError } = require('psychometrics');
+const { marginOfError } = require('psychometric');
 const moe = marginOfError(10, 100);
 console.log(moe);
 ```
