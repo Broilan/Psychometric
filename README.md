@@ -1,4 +1,4 @@
-# Psychometrics
+# Psychometric
 
 A TypeScript-compatible package offering a comprehensive suite of psychometric functions. This library includes methods for **correlation coefficients**, **error calculations**, **reliability estimates**, and **validity measures**, making it ideal for psychometricians and data scientists working with psychological and educational assessments.
 
@@ -7,7 +7,7 @@ A TypeScript-compatible package offering a comprehensive suite of psychometric f
 Install the package via npm:
 
 ```bash
-npm install Psychometrics
+npm install psychometrics
 ```
 
 ## Usage
@@ -27,7 +27,7 @@ Functions to calculate various correlation coefficients.
 
 Example:
 ```typescript
-import { pearsonCorrelationCoefficient } from 'your-package-name/Correlation';
+import { pearsonCorrelationCoefficient } from 'psychometrics/correlation';
 const correlation = pearsonCorrelationCoefficient([1, 2, 3], [4, 5, 6]);
 console.log(correlation);
 ```
@@ -43,7 +43,7 @@ Functions to compute various error estimates, including confidence intervals and
 
 Example:
 ```typescript
-import { marginOfError } from 'your-package-name/Error';
+import { marginOfError } from 'psychometrics/error';
 const moe = marginOfError(10, 100);
 console.log(moe);
 ```
@@ -61,7 +61,7 @@ Functions for assessing the reliability of measurements.
 
 Example:
 ```typescript
-import { cronbachsAlpha } from 'your-package-name/Reliability';
+import { cronbachsAlpha } from 'psychometrics/reliability';
 const alpha = cronbachsAlpha([/* your data */]);
 console.log(alpha);
 ```
@@ -75,7 +75,7 @@ Functions to assess the validity of test measures.
 
 Example:
 ```typescript
-import { constructValidity } from 'your-package-name/Validity';
+import { constructValidity } from 'psychometrics/validity';
 const validity = constructValidity([/* your data */]);
 console.log(validity);
 ```

@@ -4,7 +4,8 @@
     "module": "commonjs",
     "lib": ["ES2017", "DOM"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "src",
+    "declaration": true,
     "strict": true
   },
   "include": ["src/**/*"]

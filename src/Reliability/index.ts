@@ -1,7 +1,7 @@
-export { alternateFormsReliability as alternateFormsR } from './alternateFormsReliability';
-export { cronbachsAlpha as cronbachsA } from './cronbachsAlpha';
-export { splitHalfReliability as splitHalfR } from './splitHalfReliability';
-export { testRetestReliability as testRetestR } from './testRetestReliability';
-export { parallelFormsReliability as parallelFormsR } from './parallelFormsReliability';
-export { interRaterReliability as interRaterR } from './interRaterReliability';
+export { alternateFormsReliability } from './alternateFormsReliability';
+export { cronbachsAlpha } from './cronbachsAlpha';
+export { splitHalfReliability } from './splitHalfReliability';
+export { testRetestReliability } from './testRetestReliability';
+export { parallelFormsReliability } from './parallelFormsReliability';
+export { interRaterReliability } from './interRaterReliability';
 

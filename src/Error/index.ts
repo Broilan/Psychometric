@@ -1,5 +1,5 @@
-export { confidenceInterval as ci } from './confidenceInterval';
-export { marginOfError as moe } from './marginOfError';
-export { standardErrorOfEstimate as see } from './standardErrorEstimate';
-export { standardErrorMean as sem } from './standardErrorMean';
+export { confidenceInterval } from './confidenceInterval';
+export { marginOfError } from './marginOfError';
+export { standardErrorOfEstimate } from './standardErrorEstimate';
+export { standardErrorMean } from './standardErrorMean';
 

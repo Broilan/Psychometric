@@ -1,2 +1,2 @@
-export {constructValidity as constructV} from './constructValidity';
-export { criterionRelatedValidity as criterionRelatedV } from './criterionRelatedValidity';
+export { constructValidity } from './constructValidity';
+export { criterionRelatedValidity } from './criterionRelatedValidity';
