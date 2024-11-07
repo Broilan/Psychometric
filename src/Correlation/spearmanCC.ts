@@ -1,14 +1,25 @@
 /**
  * Calculate the Spearman correlation between two arrays of numbers.
- * @param x - First array of numbers.
- * @param y - Second array of numbers.
+ * Optionally accepts pre-calculated ranks.
+ * @param x - (Optional) First array of numbers. Required if rankX and rankY are not provided.
+ * @param y - (Optional) Second array of numbers. Required if rankX and rankY are not provided.
+ * @param rankX - (Optional) Pre-calculated ranks for the first dataset.
+ * @param rankY - (Optional) Pre-calculated ranks for the second dataset.
  * @returns Spearman correlation coefficient (rs).
+ * @throws Error if insufficient data is provided to calculate the Spearman correlation.
  */
-export function spearmanCorrelation(x: number[], y: number[]): number {
-    if (x.length !== y.length) throw new Error("Arrays must be of the same length");
+export function spearmanCorrelation(
+    x?: number[], 
+    y?: number[], 
+    rankX?: number[], 
+    rankY?: number[]
+): number {
+    if ((!x || !y) && (!rankX || !rankY)) {
+        throw new Error("Either provide datasets x and y, or provide rankX and rankY.");
+    }
 
-    // Rank each array
-    const rank = (arr: number[]): number[] => {
+    // If raw data is provided, calculate the ranks
+    const calculateRanks = (arr: number[]): number[] => {
         return arr
             .map((val, i) => ({ val, index: i }))
             .sort((a, b) => a.val - b.val)
@@ -17,12 +28,18 @@ export function spearmanCorrelation(x: number[], y: number[]): number {
             .map(item => item.rank);
     };
 
-    const rankX = rank(x);
-    const rankY = rank(y);
+    const calculatedRankX = rankX ?? (x ? calculateRanks(x) : undefined);
+    const calculatedRankY = rankY ?? (y ? calculateRanks(y) : undefined);
+
+    // Ensure ranks are available for calculation
+    if (!calculatedRankX || !calculatedRankY) {
+        throw new Error("Insufficient data to calculate Spearman correlation coefficient.");
+    }
 
     // Calculate the difference in ranks and sum of squared differences
-    const dSquaredSum = rankX.reduce((sum, rX, i) => sum + (rX - rankY[i]) ** 2, 0);
-    const n = x.length;
+    const dSquaredSum = calculatedRankX.reduce((sum, rX, i) => sum + (rX - calculatedRankY[i]) ** 2, 0);
+    const n = calculatedRankX.length;
 
     return 1 - (6 * dSquaredSum) / (n * (n ** 2 - 1));
 }
+

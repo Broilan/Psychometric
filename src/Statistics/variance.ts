@@ -6,7 +6,7 @@ import { mean } from "./mean";
  * @returns Sample variance of the array.
  */
 function sampleVariance(values: number[]): number {
-    if (values.length < 2) throw new Error("Sample variance requires at least two data points");
+    if (values.length < 2) throw new Error("Sample variance calculation requires at least two data points.");
     const meanValue = mean.arithmetic(values);
     return values.reduce((acc, value) => acc + (value - meanValue) ** 2, 0) / (values.length - 1);
 }
@@ -17,7 +17,7 @@ function sampleVariance(values: number[]): number {
  * @returns Population variance of the array.
  */
 function populationVariance(values: number[]): number {
-    if (values.length === 0) throw new Error("Population variance requires at least one data point");
+    if (values.length === 0) throw new Error("Population variance calculation requires at least one data point.");
     const meanValue = mean.arithmetic(values);
     return values.reduce((acc, value) => acc + (value - meanValue) ** 2, 0) / values.length;
 }
@@ -26,5 +26,6 @@ export const variance = {
     sample: sampleVariance,
     population: populationVariance
 };
+
 
 

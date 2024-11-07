@@ -1,9 +1,6 @@
-/**
- * Calculate the mode of an array of numbers.
- * @param values - Array of numbers.
- * @returns Mode of the array. If multiple modes, returns an array of modes.
- */
-export function mode(values: number[]): number | number[] {
+export function mode(values: number[]): number | number[] | null {
+    if (values.length === 0) return null;
+
     const frequency: { [key: number]: number } = {};
     values.forEach(value => {
         frequency[value] = (frequency[value] || 0) + 1;
