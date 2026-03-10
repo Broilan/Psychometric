@@ -1,6 +1,6 @@
 {
   "name": "psychometric",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "TypeScript-first psychometric and behavioral measurement toolkit",
   "type": "module",
   "main": "./dist/psychometric.umd.cjs",
