@@ -1,15 +1,34 @@
 # psychometric
 
-`psychometric` is a TypeScript-first toolkit for psychometric scoring, behavioral task summaries, reliability workflows, norms lookup, and exportable measurement results.
+`psychometric` is a TypeScript-first toolkit for psychometric scoring, behavioral task summaries, QC flags, norms plumbing, and versioned measurement exports.
 
-It is designed for:
+It is built for real assessment workflows in JavaScript and TypeScript, especially:
 
+- choice reaction time
+- simple reaction time
+- span / block tapping / sequence tasks
 - questionnaire and scale scoring
-- reaction-time and cognitive task summaries
-- repeated-session and battery workflows
-- psychometric and assessment tooling in JavaScript/TypeScript
+- repeated-session and exportable scoring pipelines
 
-The public API is generic. It is suitable for internal instrument pipelines and external JS/TS consumers without exposing product-specific naming.
+## What is stable now
+
+The current stable top-level API is centered on first-production workflows:
+
+- reaction-time session summaries from `TrialRecord[]`
+- span / sequence task summaries
+- questionnaire scoring with reverse scoring, subscales, composites, prorating, and QC flags
+- reliability and score-precision helpers for practical test scoring
+- norm lookup infrastructure and versioned export envelopes
+
+## What is intentionally experimental
+
+Some helpers are shipped but intentionally isolated under `experimental` rather than treated as part of the strongest API guarantees:
+
+- bootstrap and permutation scaffolding
+- omega total from externally supplied factor parameters
+- validity helpers such as incremental validity and ROC/AUC summaries
+
+Those utilities are useful, but they should be treated as provisional compared with the core scoring and session-summary workflows.
 
 ## Installation
 
@@ -17,45 +36,102 @@ The public API is generic. It is suitable for internal instrument pipelines and 
 npm install psychometric
 ```
 
-## What is included
+## Stable modules
 
-- `core`: descriptive statistics, missing-data helpers, rank/z transforms, percentile helpers, confidence intervals, bootstrap/permutation scaffolding, and effect sizes
-- `schemas`: shared interfaces for items, scales, trials, sessions, scores, norms, QC flags, and exports
-- `scores`: reverse scoring, sum/weighted/prorated scores, subscales, composites, change/discrepancy scores, and common score transforms
-- `reliability`: Cronbach's alpha, split-half reliability, Spearman-Brown, test-retest, alternate forms, item-total correlations, alpha-if-item-deleted, SEM, and omega-total input-based support
-- `behavioral`: reaction-time trial classification, RT summaries, practice/scored separation, span scoring, and sequence error taxonomy helpers
-- `norms`: norm table schemas, contextual lookup helpers, and raw-to-normed conversions
-- `qc`: schema-driven quality flags for timing, missingness, protocol mismatch, completion, and reliability warnings
-- `validity`: convergent/discriminant summaries, criterion correlations, known-groups comparisons, incremental validity summaries, and ROC/AUC helpers
-- `exports`: JSON/CSV serialization helpers with versioned export metadata
+- `behavioral`: reaction-time classification and summary helpers, span/sequence summaries, practice vs scored separation
+- `scores`: reverse scoring, prorating, subscales, composites, transformed scores, and change/discrepancy utilities
+- `reliability`: Cronbach's alpha, split-half reliability, Spearman-Brown, item-total correlations, SEM, and score confidence intervals
+- `norms`: generic norm-table lookup and raw-to-normed score conversion infrastructure
+- `qc`: reusable quality-flag generation for timing, missingness, protocol mismatch, and session completeness
+- `exports`: versioned metadata envelopes for session summaries, trial exports, scale-score exports, and norm lookup exports
+- `schemas`: reusable TS types for trials, scales, scores, sessions, norms, and export envelopes
 
-## Example
+## Example: Reaction-Time Summary
 
 ```ts
 import {
-  summarizeReactionTime,
-  classifyReactionTimeTrial,
-  scoreSpanTask,
-  scoreLikertScale,
-  cronbachAlpha,
-  splitHalfReliability,
-  standardErrorOfMeasurement,
-  scoreSubscales,
-  standardizeZ,
-  toTScore,
-  lookupNorm,
   buildQualityFlags,
-  type ScaleDefinition,
+  summarizeReactionTime,
   type TrialRecord,
 } from "psychometric";
 
 const trials: TrialRecord[] = [
-  { id: "t1", reactionTimeMs: 420, isCorrect: true, stimulusSide: "left" },
-  { id: "t2", reactionTimeMs: 390, isCorrect: true, stimulusSide: "right" },
+  { id: "t1", blockId: "early", stimulusSide: "left", reactionTimeMs: 320, isCorrect: true },
+  { id: "t2", blockId: "early", stimulusSide: "right", reactionTimeMs: 340, isCorrect: true },
+  { id: "t3", blockId: "late", stimulusSide: "left", reactionTimeMs: 390, isCorrect: true },
+  { id: "t4", blockId: "late", stimulusSide: "right", reactionTimeMs: null, isCorrect: false },
 ];
 
-const rtSummary = summarizeReactionTime(trials);
-const firstTrial = classifyReactionTimeTrial(trials[0]);
+const summary = summarizeReactionTime(trials, {
+  minimumValidTrials: 3,
+});
+
+const qualityFlags = buildQualityFlags({
+  reactionTimeSummary: summary,
+  minimumValidTrials: 3,
+});
+
+console.log(summary.counts.valid);
+console.log(summary.timing.medianCorrectRtMs);
+console.log(qualityFlags);
+```
+
+## Example: Scale And Subscale Scoring
+
+```ts
+import {
+  scoreLikertScale,
+  type ScaleDefinition,
+} from "psychometric";
+
+const scale: ScaleDefinition<number> = {
+  id: "wellbeing",
+  items: [
+    { id: "i1", min: 1, max: 5, subscale: "mood" },
+    { id: "i2", min: 1, max: 5, subscale: "mood", reverse: true },
+    { id: "i3", min: 1, max: 5, subscale: "mood" },
+    { id: "i4", min: 1, max: 5, subscale: "energy" },
+    { id: "i5", min: 1, max: 5, subscale: "energy", reverse: true },
+    { id: "i6", min: 1, max: 5, subscale: "energy" },
+  ],
+  subscales: {
+    mood: ["i1", "i2", "i3"],
+    energy: ["i4", "i5", "i6"],
+  },
+  composites: {
+    wellbeingComposite: ["mood", "energy"],
+  },
+  scoring: {
+    allowProrating: true,
+    minAnswered: 4,
+    maxMissingRate: 0.1,
+  },
+};
+
+const score = scoreLikertScale(
+  scale,
+  { i1: 4, i2: 2, i3: 5, i4: 3, i5: null, i6: 4 },
+  { minAnswered: 2, prorate: true, mean: 18, standardDeviation: 4 },
+);
+
+console.log(score.raw);
+console.log(score.subscales);
+console.log(score.transforms?.t);
+console.log(score.qualityFlags);
+```
+
+## Example: Norm Lookup, QC, And Versioned Export
+
+```ts
+import {
+  buildQualityFlags,
+  createNormLookupExport,
+  createScaleScoresExport,
+  lookupNorm,
+  scoreLikertScale,
+  type NormTable,
+  type ScaleDefinition,
+} from "psychometric";
 
 const scale: ScaleDefinition<number> = {
   id: "wellbeing",
@@ -63,51 +139,96 @@ const scale: ScaleDefinition<number> = {
     { id: "i1", min: 1, max: 5 },
     { id: "i2", min: 1, max: 5, reverse: true },
     { id: "i3", min: 1, max: 5 },
+    { id: "i4", min: 1, max: 5 },
   ],
-  subscales: {
-    positive: ["i1", "i3"],
-  },
   scoring: {
     allowProrating: true,
-    minAnswered: 2,
-    maxMissingRate: 0.34,
+    minAnswered: 3,
+    maxMissingRate: 0.25,
   },
 };
 
-const score = scoreLikertScale(scale, {
-  i1: 4,
-  i2: 2,
-  i3: 5,
-});
+const norms: NormTable = {
+  id: "wellbeing-v1",
+  scaleId: "wellbeing",
+  version: "2026.1",
+  rows: [
+    {
+      rawMin: 14,
+      rawMax: 18,
+      ageBand: { label: "18-29", min: 18, max: 29 },
+      z: 0.5,
+      t: 55,
+      percentile: 69,
+      stanine: 6,
+    },
+  ],
+};
 
-const alpha = cronbachAlpha([
-  [4, 2, 5],
-  [3, 4, 4],
-  [5, 1, 5],
-]);
+const score = scoreLikertScale(scale, { i1: 4, i2: 2, i3: 5, i4: 3 });
+const flags = buildQualityFlags({ responses: [4, 2, 5, 3] });
+const norm = lookupNorm(norms, score.raw ?? 0, { age: 24 });
 
-const z = standardizeZ(score.raw ?? 0, 10, 3);
-const t = toTScore(z);
+console.log(createScaleScoresExport([score], "2.0.0"));
+console.log(createNormLookupExport(norm, "2.0.0"));
+console.log(flags);
 ```
 
-## Design notes
+## Public API shape
 
-- The package is workflow-oriented rather than a bucket of isolated formulas.
-- Result objects are standardized so they compose across scoring, QC, norms, and exports.
-- Behavioral support is generic and data-driven rather than tied to named tasks.
-- Norm utilities provide infrastructure only. No normative datasets are bundled.
-- Advanced estimates are only implemented where the assumptions are explicit. Functions such as omega total require direct factor inputs instead of pretending to estimate a latent model from arbitrary raw data.
-
-## Imports
-
-Top-level imports are the supported runtime entrypoint:
+Stable workflow functions are exported directly:
 
 ```ts
-import { scoreLikertScale, summarizeReactionTime } from "psychometric";
+import {
+  summarizeReactionTime,
+  scoreSpanTask,
+  scoreLikertScale,
+  cronbachAlpha,
+  splitHalfReliability,
+  standardErrorOfMeasurement,
+  lookupNorm,
+  buildQualityFlags,
+  createSessionSummaryExport,
+} from "psychometric";
 ```
+
+Stable groups are also available as namespaces:
+
+```ts
+import { behavioral, scores, reliability, norms, qc, exports } from "psychometric";
+```
+
+Experimental helpers are isolated explicitly:
+
+```ts
+import { experimental } from "psychometric";
+```
+
+## Output discipline
+
+Versioned exports use explicit metadata envelopes with:
+
+- `kind`
+- `exportVersion`
+- `schemaVersion`
+- `packageName`
+- `packageVersion`
+- `generatedAt`
+
+This is intended to make downstream Noema-like integrations resilient to future schema evolution without tying the public API to product-specific names.
+
+## Examples folder
+
+Additional integration-oriented examples live in:
+
+- `examples/reaction-time-session.ts`
+- `examples/scale-scoring.ts`
+- `examples/norms-qc-export.ts`
 
 ## Development
 
 ```bash
+npm test
+npm run typecheck
 npm run build
 ```

@@ -1,3 +1,7 @@
+/**
+ * Experimental validity helpers. These are useful building blocks, but they
+ * are intentionally not exposed as first-class stable top-level exports yet.
+ */
 import { cohensD } from "../core/effects";
 import { assertSameLength, ensureFiniteNumbers, sum } from "../core/math";
 import { correlation, mean, pointBiserial } from "../core/stats";

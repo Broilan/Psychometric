@@ -1,13 +1,26 @@
-import type { ItemDefinition, QualityFlag, ScaleDefinition, ScoreResult, SubscaleScoreResult } from "../schemas";
+import type {
+  ConfidenceInterval,
+  ItemDefinition,
+  QualityFlag,
+  ScaleDefinition,
+  ScoreResult,
+  ScoreTransformMap,
+  SubscaleScoreResult,
+} from "../schemas";
 import { countMissing } from "../core/missing";
 import { assertFiniteNumber, clamp, ensureFiniteNumbers, sum } from "../core/math";
 import { confidenceIntervalMean, percentileOfScore, standardDeviation } from "../core/stats";
 
-export interface ScoreItemsOptions {
+export interface ScaleScoringOptions {
   minAnswered?: number;
   prorate?: boolean;
   confidenceLevel?: number;
+  mean?: number;
+  standardDeviation?: number;
 }
+
+/** @deprecated Use `ScaleScoringOptions`. */
+export type ScoreItemsOptions = ScaleScoringOptions;
 
 export function reverseScore(value: number, min: number, max: number): number {
   assertFiniteNumber(value, "value");
@@ -47,7 +60,7 @@ export function prorateScore(
   totalItemCount: number,
   minAnswered = totalItemCount,
 ): number | null {
-  const values = ensureFiniteNumbers(answeredValues, "answeredValues");
+  const values = answeredValues.filter((value): value is number => typeof value === "number" && Number.isFinite(value));
   if (values.length < minAnswered || !totalItemCount) {
     return null;
   }
@@ -103,7 +116,7 @@ export function scoreConfidenceInterval(
   observedScore: number,
   sem: number,
   level = 0.95,
-): { lower: number; upper: number; level: number } {
+): ConfidenceInterval {
   const pseudoSample = [observedScore - sem, observedScore, observedScore + sem];
   const interval = confidenceIntervalMean(pseudoSample, level);
   return {
@@ -118,7 +131,7 @@ function buildSubscaleResult(
   itemIds: readonly string[],
   responses: Record<string, number | null | undefined>,
   itemsById: Map<string, ItemDefinition<number>>,
-  options: ScoreItemsOptions = {},
+  options: ScaleScoringOptions = {},
 ): SubscaleScoreResult {
   const values = itemIds
     .map((itemId) => responses[itemId])
@@ -128,6 +141,7 @@ function buildSubscaleResult(
     : values.length >= (options.minAnswered ?? itemIds.length)
       ? sum(values)
       : null;
+  const transforms = raw === null ? undefined : buildScoreTransforms(raw, options.mean, options.standardDeviation);
 
   return {
     id,
@@ -136,13 +150,33 @@ function buildSubscaleResult(
     answeredCount: values.length,
     missingCount: itemIds.length - values.length,
     maxPossible: itemIds.reduce((total, itemId) => total + (itemsById.get(itemId)?.max ?? 0), 0),
+    transforms,
+    transformed: transforms,
+  };
+}
+
+function buildScoreTransforms(
+  raw: number,
+  distributionMean?: number,
+  distributionStandardDeviation?: number,
+): ScoreTransformMap | undefined {
+  if (distributionMean === undefined || distributionStandardDeviation === undefined || !distributionStandardDeviation) {
+    return undefined;
+  }
+  const z = standardizeZ(raw, distributionMean, distributionStandardDeviation);
+  return {
+    z,
+    t: toTScore(z),
+    scaled: toScaledScore(z),
+    percentile: toPercentileRank(z),
+    stanine: toStanine(z),
   };
 }
 
 export function scoreSubscales(
   definition: ScaleDefinition<number>,
   responses: Readonly<Record<string, number | null | undefined>>,
-  options: ScoreItemsOptions = {},
+  options: ScaleScoringOptions = {},
 ): SubscaleScoreResult[] {
   const scoredResponses = applyReverseScoring(responses, definition.items);
   const itemsById = new Map(definition.items.map((item) => [item.id, item]));
@@ -170,21 +204,26 @@ export function scoreComposite(
 export function scoreLikertScale(
   definition: ScaleDefinition<number>,
   responses: Readonly<Record<string, number | null | undefined>>,
-  options: ScoreItemsOptions = {},
+  options: ScaleScoringOptions = {},
 ): ScoreResult {
+  const resolvedOptions: ScaleScoringOptions = {
+    ...options,
+    minAnswered: options.minAnswered ?? definition.scoring?.minAnswered,
+    prorate: options.prorate ?? definition.scoring?.allowProrating,
+  };
   const scoredResponses = applyReverseScoring(responses, definition.items);
   const answeredValues = definition.items
     .map((item) => scoredResponses[item.id])
     .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
   const missingCount = countMissing(definition.items.map((item) => scoredResponses[item.id]));
-  const minAnswered = options.minAnswered ?? definition.scoring?.minAnswered ?? definition.items.length;
-  const raw = options.prorate || definition.scoring?.allowProrating
+  const minAnswered = resolvedOptions.minAnswered ?? definition.items.length;
+  const raw = resolvedOptions.prorate
     ? prorateScore(answeredValues, definition.items.length, minAnswered)
     : answeredValues.length >= minAnswered
       ? sum(answeredValues)
       : null;
 
-  const subscales = scoreSubscales(definition, scoredResponses, options);
+  const subscales = scoreSubscales(definition, responses, resolvedOptions);
   const composites = Object.entries(definition.composites ?? {}).map(([id, subscaleIds]) =>
     scoreComposite(id, subscales, subscaleIds),
   );
@@ -203,9 +242,12 @@ export function scoreLikertScale(
     }
   }
 
+  const transforms = raw === null ? undefined : buildScoreTransforms(raw, resolvedOptions.mean, resolvedOptions.standardDeviation);
   return {
     scaleId: definition.id,
     raw,
+    transforms,
+    transformed: transforms,
     answeredCount: answeredValues.length,
     missingCount,
     itemCount: definition.items.length,
@@ -218,7 +260,7 @@ export function scoreLikertScale(
 export function scoreBattery(
   definitions: readonly ScaleDefinition<number>[],
   responsesByScale: Readonly<Record<string, Readonly<Record<string, number | null | undefined>>>>,
-  options: ScoreItemsOptions = {},
+  options: ScaleScoringOptions = {},
 ): ScoreResult[] {
   return definitions.map((definition) => scoreLikertScale(definition, responsesByScale[definition.id] ?? {}, options));
 }

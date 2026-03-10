@@ -1,6 +1,7 @@
 import type { InterpretationBand, NormBand, NormLookupResult, NormRow, NormTable, QualityFlag } from "../schemas";
 import { clamp } from "../core/math";
 import { toScaledScore, toStanine, toTScore } from "../scores";
+import { NORM_LOOKUP_EXPORT_SCHEMA_VERSION } from "../versioning";
 
 function bandMatches(band: NormBand | undefined, value: number | undefined): boolean {
   if (!band || value === undefined) {
@@ -37,6 +38,7 @@ export function lookupNorm(
       source: table.id,
     });
     return {
+      schemaVersion: NORM_LOOKUP_EXPORT_SCHEMA_VERSION,
       matched: false,
       tableId: table.id,
       tableVersion: table.version,
@@ -46,6 +48,7 @@ export function lookupNorm(
   }
 
   return {
+    schemaVersion: NORM_LOOKUP_EXPORT_SCHEMA_VERSION,
     matched: true,
     tableId: table.id,
     tableVersion: table.version,

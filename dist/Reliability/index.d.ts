@@ -25,5 +25,9 @@ export interface OmegaTotalInput {
     loadings: readonly number[];
     errorVariances: readonly number[];
 }
+/**
+ * Experimental: omega total is only supported from explicit factor loadings
+ * and error variances. This package does not estimate those latent parameters.
+ */
 export declare function omegaTotal(input: OmegaTotalInput): number | null;
 export declare function averageInterItemCovariance(matrix: readonly (readonly number[])[]): number;

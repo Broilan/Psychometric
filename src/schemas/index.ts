@@ -1,4 +1,11 @@
 export type Primitive = string | number | boolean | null;
+export type ScoreTransformMap = Partial<Record<"z" | "t" | "scaled" | "percentile" | "stanine", number>>;
+
+export interface ConfidenceInterval {
+  lower: number;
+  upper: number;
+  level: number;
+}
 
 export interface ItemDefinition<TResponse = Primitive> {
   id: string;
@@ -121,29 +128,30 @@ export interface SubscaleScoreResult {
   answeredCount: number;
   missingCount: number;
   maxPossible?: number;
-  transformed?: Record<string, number | null | undefined>;
+  transforms?: ScoreTransformMap;
+  /** @deprecated Use `transforms`. */
+  transformed?: ScoreTransformMap;
   qualityFlags?: QualityFlag[];
 }
 
 export interface ScoreResult {
   scaleId: string;
   raw: number | null;
-  transformed?: Record<string, number | null | undefined>;
+  transforms?: ScoreTransformMap;
+  /** @deprecated Use `transforms`. */
+  transformed?: ScoreTransformMap;
   answeredCount: number;
   missingCount: number;
   itemCount: number;
   subscales?: SubscaleScoreResult[];
   composites?: SubscaleScoreResult[];
   qualityFlags?: QualityFlag[];
-  confidenceInterval?: {
-    lower: number;
-    upper: number;
-    level: number;
-  };
+  confidenceInterval?: ConfidenceInterval;
   metadata?: Record<string, Primitive | Primitive[] | undefined>;
 }
 
 export interface SessionSummary {
+  summaryType?: "session-summary";
   session: SessionMetadata;
   protocol?: ProtocolMetadata;
   device?: DeviceMetadata;
@@ -190,6 +198,7 @@ export interface NormTable {
 }
 
 export interface NormLookupResult {
+  schemaVersion?: string;
   matched: boolean;
   tableId: string;
   tableVersion: string;
@@ -208,9 +217,29 @@ export interface NormLookupResult {
 }
 
 export interface ExportMetadata {
+  kind: string;
   exportVersion: string;
+  schemaVersion: string;
   generatedAt: string;
   packageName: string;
   packageVersion?: string;
-  schemaVersion?: string;
+}
+
+export interface ExportEnvelope<TPayload> {
+  metadata: ExportMetadata;
+  payload: TPayload;
+}
+
+export interface SessionSummaryExport extends ExportEnvelope<SessionSummary> {}
+
+export interface TrialRecordsExport<TTrial extends TrialRecord = TrialRecord>
+  extends ExportEnvelope<readonly TTrial[]> {}
+
+export interface ScaleScoresExport extends ExportEnvelope<readonly ScoreResult[]> {}
+
+export interface NormLookupExport extends ExportEnvelope<NormLookupResult> {}
+
+export interface PracticeSplit<T> {
+  practice: T[];
+  scored: T[];
 }

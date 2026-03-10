@@ -1,4 +1,4 @@
-import { QualityFlag, TrialRecord } from '../schemas';
+import { PracticeSplit, QualityFlag, TrialRecord } from '../schemas';
 export interface ReactionTimeTrialClassification {
     isPractice: boolean;
     isCorrect: boolean;
@@ -8,6 +8,34 @@ export interface ReactionTimeTrialClassification {
     isValid: boolean;
 }
 export interface ReactionTimeSummary {
+    summaryType: "reaction-time";
+    practiceIncluded: boolean;
+    counts: {
+        total: number;
+        valid: number;
+        invalid: number;
+        correct: number;
+        incorrect: number;
+        omissions: number;
+        anticipations: number;
+        lapses: number;
+    };
+    rates: {
+        accuracy: number;
+        error: number;
+        omission: number;
+        anticipation: number;
+    };
+    timing: {
+        medianCorrectRtMs: number | null;
+        meanCorrectRtMs: number | null;
+        rtSdMs: number | null;
+        coefficientOfVariation: number | null;
+    };
+    comparisons: {
+        earlyLateDifferenceMs: number | null;
+        leftRightAsymmetryMs: number | null;
+    };
     totalTrials: number;
     validTrialCount: number;
     invalidTrialCount: number;
@@ -28,6 +56,10 @@ export interface ReactionTimeOptions {
     lapseThresholdMs?: number;
     includePractice?: boolean;
     minimumValidTrials?: number;
+    blockLabels?: {
+        early?: string;
+        late?: string;
+    };
 }
 export declare function classifyReactionTimeTrial(trial: TrialRecord, options?: ReactionTimeOptions): ReactionTimeTrialClassification;
 export declare function summarizeReactionTime(trials: readonly TrialRecord[], options?: ReactionTimeOptions): ReactionTimeSummary;
@@ -41,6 +73,18 @@ export interface SequenceErrorSummary<T = string | number> {
 }
 export declare function classifySequenceErrors<T>(expected: readonly T[], observed: readonly T[]): SequenceErrorSummary<T>;
 export interface SpanTaskSummary {
+    summaryType: "span-task";
+    practiceIncluded: boolean;
+    counts: {
+        total: number;
+        correct: number;
+        incorrect: number;
+    };
+    timing: {
+        firstResponseLatencyMeanMs: number | null;
+        interResponseIntervalMeanMs: number | null;
+        totalSequenceResponseTimeMeanMs: number | null;
+    };
     totalTrials: number;
     totalCorrectTrials: number;
     longestSpan: number;
@@ -51,7 +95,7 @@ export interface SpanTaskSummary {
     forwardBackwardDelta: number | null;
     errors: SequenceErrorSummary[];
 }
-export declare function separatePracticeTrials<T extends TrialRecord>(trials: readonly T[]): {
+export declare function separatePracticeTrials<T extends TrialRecord>(trials: readonly T[]): PracticeSplit<T> & {
     practiceTrials: T[];
     scoredTrials: T[];
 };

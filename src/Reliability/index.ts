@@ -119,6 +119,10 @@ export interface OmegaTotalInput {
   errorVariances: readonly number[];
 }
 
+/**
+ * Experimental: omega total is only supported from explicit factor loadings
+ * and error variances. This package does not estimate those latent parameters.
+ */
 export function omegaTotal(input: OmegaTotalInput): number | null {
   const loadings = ensureFiniteNumbers(input.loadings, "loadings");
   const errorVariances = ensureFiniteNumbers(input.errorVariances, "errorVariances");

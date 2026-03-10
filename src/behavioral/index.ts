@@ -1,4 +1,4 @@
-import type { QualityFlag, TrialRecord } from "../schemas";
+import type { PracticeSplit, QualityFlag, TrialRecord } from "../schemas";
 import { ensureFiniteNumbers } from "../core/math";
 import { mean, median, standardDeviation } from "../core/stats";
 
@@ -12,6 +12,34 @@ export interface ReactionTimeTrialClassification {
 }
 
 export interface ReactionTimeSummary {
+  summaryType: "reaction-time";
+  practiceIncluded: boolean;
+  counts: {
+    total: number;
+    valid: number;
+    invalid: number;
+    correct: number;
+    incorrect: number;
+    omissions: number;
+    anticipations: number;
+    lapses: number;
+  };
+  rates: {
+    accuracy: number;
+    error: number;
+    omission: number;
+    anticipation: number;
+  };
+  timing: {
+    medianCorrectRtMs: number | null;
+    meanCorrectRtMs: number | null;
+    rtSdMs: number | null;
+    coefficientOfVariation: number | null;
+  };
+  comparisons: {
+    earlyLateDifferenceMs: number | null;
+    leftRightAsymmetryMs: number | null;
+  };
   totalTrials: number;
   validTrialCount: number;
   invalidTrialCount: number;
@@ -33,6 +61,10 @@ export interface ReactionTimeOptions {
   lapseThresholdMs?: number;
   includePractice?: boolean;
   minimumValidTrials?: number;
+  blockLabels?: {
+    early?: string;
+    late?: string;
+  };
 }
 
 export function classifyReactionTimeTrial(
@@ -66,24 +98,25 @@ export function summarizeReactionTime(
   const classified = scoredTrials.map((trial) => ({ trial, classification: classifyReactionTimeTrial(trial, options) }));
   const validTrials = classified.filter(({ classification }) => classification.isValid);
   const invalidTrials = classified.filter(({ classification }) => !classification.isValid);
+  const correctTrials = classified.filter(({ classification }) => classification.isCorrect);
+  const incorrectTrials = classified.filter(({ classification }) => !classification.isCorrect && !classification.isOmission);
+  const omissions = classified.filter(({ classification }) => classification.isOmission);
+  const anticipations = classified.filter(({ classification }) => classification.isAnticipation);
+  const lapses = classified.filter(({ classification }) => classification.isLapse);
   const correctValidRts = validTrials
     .filter(({ classification }) => classification.isCorrect)
     .map(({ trial }) => trial.reactionTimeMs ?? trial.latencyMs)
     .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
-  const early = validTrials.filter(({ trial }) => (trial.blockId ?? "early") === "early").map(({ trial }) => trial.reactionTimeMs ?? trial.latencyMs ?? 0);
-  const late = validTrials.filter(({ trial }) => (trial.blockId ?? "late") === "late").map(({ trial }) => trial.reactionTimeMs ?? trial.latencyMs ?? 0);
+  const earlyLabel = options.blockLabels?.early ?? "early";
+  const lateLabel = options.blockLabels?.late ?? "late";
+  const early = validTrials.filter(({ trial }) => (trial.blockId ?? earlyLabel) === earlyLabel).map(({ trial }) => trial.reactionTimeMs ?? trial.latencyMs ?? 0);
+  const late = validTrials.filter(({ trial }) => (trial.blockId ?? lateLabel) === lateLabel).map(({ trial }) => trial.reactionTimeMs ?? trial.latencyMs ?? 0);
   const left = validTrials.filter(({ trial }) => trial.stimulusSide === "left").map(({ trial }) => trial.reactionTimeMs ?? trial.latencyMs ?? 0);
   const right = validTrials.filter(({ trial }) => trial.stimulusSide === "right").map(({ trial }) => trial.reactionTimeMs ?? trial.latencyMs ?? 0);
-  const omissionRate = scoredTrials.length
-    ? classified.filter(({ classification }) => classification.isOmission).length / scoredTrials.length
-    : 0;
-  const anticipationRate = scoredTrials.length
-    ? classified.filter(({ classification }) => classification.isAnticipation).length / scoredTrials.length
-    : 0;
-  const errorRate = scoredTrials.length
-    ? classified.filter(({ classification }) => !classification.isCorrect && !classification.isOmission).length / scoredTrials.length
-    : 0;
-  const accuracy = scoredTrials.length ? classified.filter(({ classification }) => classification.isCorrect).length / scoredTrials.length : 0;
+  const omissionRate = scoredTrials.length ? omissions.length / scoredTrials.length : 0;
+  const anticipationRate = scoredTrials.length ? anticipations.length / scoredTrials.length : 0;
+  const errorRate = scoredTrials.length ? incorrectTrials.length / scoredTrials.length : 0;
+  const accuracy = scoredTrials.length ? correctTrials.length / scoredTrials.length : 0;
   const averageRt = correctValidRts.length ? mean(correctValidRts) : null;
   const rtSd = correctValidRts.length > 1 ? standardDeviation(correctValidRts) : null;
   const qualityFlags: QualityFlag[] = [];
@@ -100,6 +133,34 @@ export function summarizeReactionTime(
   }
 
   return {
+    summaryType: "reaction-time",
+    practiceIncluded: includePractice,
+    counts: {
+      total: scoredTrials.length,
+      valid: validTrials.length,
+      invalid: invalidTrials.length,
+      correct: correctTrials.length,
+      incorrect: incorrectTrials.length,
+      omissions: omissions.length,
+      anticipations: anticipations.length,
+      lapses: lapses.length,
+    },
+    rates: {
+      accuracy,
+      error: errorRate,
+      omission: omissionRate,
+      anticipation: anticipationRate,
+    },
+    timing: {
+      medianCorrectRtMs: correctValidRts.length ? median(correctValidRts) : null,
+      meanCorrectRtMs: averageRt,
+      rtSdMs: rtSd,
+      coefficientOfVariation: averageRt && rtSd ? rtSd / averageRt : null,
+    },
+    comparisons: {
+      earlyLateDifferenceMs: early.length && late.length ? mean(late) - mean(early) : null,
+      leftRightAsymmetryMs: left.length && right.length ? mean(right) - mean(left) : null,
+    },
     totalTrials: scoredTrials.length,
     validTrialCount: validTrials.length,
     invalidTrialCount: invalidTrials.length,
@@ -167,6 +228,18 @@ export function classifySequenceErrors<T>(
 }
 
 export interface SpanTaskSummary {
+  summaryType: "span-task";
+  practiceIncluded: boolean;
+  counts: {
+    total: number;
+    correct: number;
+    incorrect: number;
+  };
+  timing: {
+    firstResponseLatencyMeanMs: number | null;
+    interResponseIntervalMeanMs: number | null;
+    totalSequenceResponseTimeMeanMs: number | null;
+  };
   totalTrials: number;
   totalCorrectTrials: number;
   longestSpan: number;
@@ -178,11 +251,13 @@ export interface SpanTaskSummary {
   errors: SequenceErrorSummary[];
 }
 
-export function separatePracticeTrials<T extends TrialRecord>(trials: readonly T[]): {
+export function separatePracticeTrials<T extends TrialRecord>(trials: readonly T[]): PracticeSplit<T> & {
   practiceTrials: T[];
   scoredTrials: T[];
 } {
   return {
+    practice: trials.filter((trial) => trial.isPractice),
+    scored: trials.filter((trial) => !trial.isPractice),
     practiceTrials: trials.filter((trial) => trial.isPractice),
     scoredTrials: trials.filter((trial) => !trial.isPractice),
   };
@@ -226,6 +301,18 @@ export function scoreSpanTask(
   const backward = correctTrials.filter((trial) => `${trial.metadata?.direction ?? "forward"}` === "backward");
 
   return {
+    summaryType: "span-task",
+    practiceIncluded: Boolean(options.includePractice),
+    counts: {
+      total: scopedTrials.length,
+      correct: correctTrials.length,
+      incorrect: scopedTrials.length - correctTrials.length,
+    },
+    timing: {
+      firstResponseLatencyMeanMs: latencies.length ? mean(latencies) : null,
+      interResponseIntervalMeanMs: interResponseIntervals.length ? mean(interResponseIntervals) : null,
+      totalSequenceResponseTimeMeanMs: durations.length ? mean(durations) : null,
+    },
     totalTrials: scopedTrials.length,
     totalCorrectTrials: correctTrials.length,
     longestSpan: Math.max(0, ...correctTrials.map((trial) => trial.spanLevel ?? 0)),

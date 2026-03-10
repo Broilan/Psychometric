@@ -2,9 +2,11 @@
   "name": "psychometric",
   "version": "2.0.0",
   "description": "TypeScript-first psychometric and behavioral measurement toolkit",
+  "type": "module",
   "main": "./dist/psychometric.umd.cjs",
   "module": "./dist/psychometric.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": "./dist/psychometric.js",
@@ -14,10 +16,16 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "examples"
   ],
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "repository": {
     "type": "git",
@@ -38,9 +46,13 @@
     "url": "https://github.com/Broilan/Psychometric/issues"
   },
   "homepage": "https://github.com/Broilan/Psychometric#readme",
+  "engines": {
+    "node": ">=20.18.0"
+  },
   "devDependencies": {
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
-    "vite-plugin-dts": "^4.3.0"
+    "vite-plugin-dts": "^4.3.0",
+    "vitest": "^1.6.1"
   }
 }
