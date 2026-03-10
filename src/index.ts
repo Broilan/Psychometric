@@ -1,6 +1,9 @@
-// src/index.ts
-
-export * from './Correlation';
-export * from './Error';
-export * from './Reliability';
-export * from './Validity';
+export * from "./behavioral";
+export * from "./core";
+export * from "./exports";
+export * from "./norms";
+export * from "./qc";
+export * from "./Reliability";
+export * from "./schemas";
+export * from "./scores";
+export * from "./Validity";

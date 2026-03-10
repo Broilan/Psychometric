@@ -1,15 +1,15 @@
 {
   "name": "psychometric",
-  "version": "1.0.6",
-  "description": "Library of Psychometric formulae",
-  "main": "./dist/psychometric.umd.cjs",   
-  "module": "./dist/psychometric.js",       
-  "types": "./dist/index.d.ts",            
+  "version": "2.0.0",
+  "description": "TypeScript-first psychometric and behavioral measurement toolkit",
+  "main": "./dist/psychometric.umd.cjs",
+  "module": "./dist/psychometric.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/psychometric.js",
       "require": "./dist/psychometric.umd.cjs",
-      "types": "./dist/index.d.ts" 
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
@@ -24,14 +24,16 @@
     "url": "git+https://github.com/Broilan/Psychometric.git"
   },
   "keywords": [
-    "statistics",
     "psychometrics",
-    "psychology",
-    "mathematics",
-    "psychometric"
+    "psychometric",
+    "behavioral",
+    "measurement",
+    "assessment",
+    "statistics",
+    "typescript"
   ],
   "author": "Tanner Eschmann",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Broilan/Psychometric/issues"
   },
@@ -40,8 +42,5 @@
     "typescript": "^5.6.3",
     "vite": "^5.4.10",
     "vite-plugin-dts": "^4.3.0"
-  },
-  "dependencies": {
-    "simple-statistics": "^7.8.7"
   }
 }
