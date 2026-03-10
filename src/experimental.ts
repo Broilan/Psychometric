@@ -1,5 +1,5 @@
 import { bootstrap, permutationTest } from "./core";
-import { omegaTotal } from "./Reliability";
+import { omegaTotal } from "./reliability/omega";
 import {
   convergentDiscriminantSummary,
   criterionCorrelation,
@@ -7,7 +7,7 @@ import {
   knownGroupsComparison,
   rocCurve,
   screeningAssociation,
-} from "./Validity";
+} from "./validity";
 
 /**
  * Experimental helpers are shipped for evaluation but are not part of the

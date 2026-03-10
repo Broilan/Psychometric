@@ -7,7 +7,10 @@ export interface BuildQualityFlagsInput {
     validTrialCount: number;
     omissionRate: number;
     anticipationRate: number;
+    invalidTrialCount?: number;
+    errorRate?: number;
   };
+  conditionCounts?: Record<string, number>;
   responses?: readonly (number | null | undefined)[];
   expectedProtocolVersion?: string;
   actualProtocolVersion?: string;
@@ -15,9 +18,19 @@ export interface BuildQualityFlagsInput {
   completed?: boolean;
   focusInterruptions?: number;
   minimumValidTrials?: number;
+  minimumConditionTrials?: number;
   maxMissingRate?: number;
   maxOmissionRate?: number;
   maxAnticipationRate?: number;
+  maxCommissionErrorRate?: number;
+  commissionErrorRate?: number;
+  blockMetricValues?: readonly number[];
+  maxBlockInstability?: number;
+  minLatencyMs?: number;
+  maxLatencyMs?: number;
+  observedLatenciesMs?: readonly number[];
+  hasDelayedPhase?: boolean;
+  requiredDelayedPhase?: boolean;
 }
 
 export function buildQualityFlags(input: BuildQualityFlagsInput): QualityFlag[] {
@@ -26,6 +39,9 @@ export function buildQualityFlags(input: BuildQualityFlagsInput): QualityFlag[] 
   const maxMissing = input.maxMissingRate ?? 0.2;
   const maxOmissions = input.maxOmissionRate ?? 0.15;
   const maxAnticipations = input.maxAnticipationRate ?? 0.1;
+  const minimumConditionTrials = input.minimumConditionTrials ?? 3;
+  const maxCommissionErrors = input.maxCommissionErrorRate ?? 0.3;
+  const maxBlockInstability = input.maxBlockInstability ?? 0.3;
 
   if (input.reactionTimeSummary && input.reactionTimeSummary.validTrialCount < minimumValidTrials) {
     flags.push({
@@ -56,6 +72,17 @@ export function buildQualityFlags(input: BuildQualityFlagsInput): QualityFlag[] 
       message: "Anticipation rate exceeds threshold.",
       observed: input.reactionTimeSummary.anticipationRate,
       threshold: maxAnticipations,
+      source: "qc",
+    });
+  }
+
+  if (input.commissionErrorRate !== undefined && input.commissionErrorRate > maxCommissionErrors) {
+    flags.push({
+      code: "excessive-commission-errors",
+      severity: "warning",
+      message: "Commission error rate exceeds threshold.",
+      observed: input.commissionErrorRate,
+      threshold: maxCommissionErrors,
       source: "qc",
     });
   }
@@ -95,6 +122,70 @@ export function buildQualityFlags(input: BuildQualityFlagsInput): QualityFlag[] 
       message: "Missing item rate exceeds threshold.",
       observed: missingRate(input.responses),
       threshold: maxMissing,
+      source: "qc",
+    });
+  }
+
+  if (input.conditionCounts) {
+    Object.entries(input.conditionCounts).forEach(([condition, count]) => {
+      if (count < minimumConditionTrials) {
+        flags.push({
+          code: "insufficient-trials-per-condition",
+          severity: "warning",
+          message: `Condition ${condition} has too few trials.`,
+          observed: count,
+          threshold: minimumConditionTrials,
+          source: "qc",
+          metadata: { condition },
+        });
+      }
+    });
+    if (!Object.keys(input.conditionCounts).length) {
+      flags.push({
+        code: "missing-condition-coverage",
+        severity: "warning",
+        message: "No condition coverage metadata was supplied.",
+        source: "qc",
+      });
+    }
+  }
+
+  if (input.blockMetricValues && input.blockMetricValues.length > 1) {
+    const minValue = Math.min(...input.blockMetricValues);
+    const maxValue = Math.max(...input.blockMetricValues);
+    const instability = maxValue === 0 ? 0 : (maxValue - minValue) / Math.abs(maxValue);
+    if (instability > maxBlockInstability) {
+      flags.push({
+        code: "unstable-block-performance",
+        severity: "warning",
+        message: "Block-to-block variability exceeds threshold.",
+        observed: instability,
+        threshold: maxBlockInstability,
+        source: "qc",
+      });
+    }
+  }
+
+  if (input.observedLatenciesMs?.length) {
+    const minLatencyMs = input.minLatencyMs;
+    const maxLatencyMs = input.maxLatencyMs;
+    const tooFast = minLatencyMs !== undefined && input.observedLatenciesMs.some((latency) => latency < minLatencyMs);
+    const tooSlow = maxLatencyMs !== undefined && input.observedLatenciesMs.some((latency) => latency > maxLatencyMs);
+    if (tooFast || tooSlow) {
+      flags.push({
+        code: "implausible-latency-values",
+        severity: "warning",
+        message: "Observed latencies fall outside configured plausibility bounds.",
+        source: "qc",
+      });
+    }
+  }
+
+  if (input.requiredDelayedPhase && input.hasDelayedPhase === false) {
+    flags.push({
+      code: "incomplete-delayed-memory-phase",
+      severity: "warning",
+      message: "A delayed-memory phase was expected but not completed.",
       source: "qc",
     });
   }

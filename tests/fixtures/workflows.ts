@@ -100,6 +100,41 @@ export const spanTaskTrials: TrialRecord<number>[] = [
   },
 ];
 
+export const goNoGoTrials: TrialRecord<string>[] = [
+  { id: "g1", reactionTimeMs: 320, response: "space", isCorrect: true, labels: { goNoGoType: "go", condition: "go" } },
+  { id: "g2", reactionTimeMs: 340, response: "space", isCorrect: true, labels: { goNoGoType: "go", condition: "go" } },
+  { id: "g3", reactionTimeMs: null, response: null, isCorrect: false, isOmission: true, labels: { goNoGoType: "go", condition: "go" } },
+  { id: "g4", reactionTimeMs: 360, response: "space", isCorrect: false, labels: { goNoGoType: "no-go", condition: "no-go" } },
+  { id: "g5", reactionTimeMs: null, response: null, isCorrect: true, labels: { goNoGoType: "no-go", condition: "no-go" } },
+  { id: "g6", reactionTimeMs: 140, response: "space", isCorrect: false, labels: { goNoGoType: "go", condition: "go" } },
+];
+
+export const flankerTrials: TrialRecord<string>[] = [
+  { id: "f1", blockId: "block-1", reactionTimeMs: 410, response: "left", isCorrect: true, labels: { congruency: "congruent", condition: "congruent" } },
+  { id: "f2", blockId: "block-1", reactionTimeMs: 420, response: "right", isCorrect: true, labels: { congruency: "congruent", condition: "congruent" } },
+  { id: "f3", blockId: "block-1", reactionTimeMs: 510, response: "left", isCorrect: true, labels: { congruency: "incongruent", condition: "incongruent" } },
+  { id: "f4", blockId: "block-1", reactionTimeMs: 530, response: "right", isCorrect: true, labels: { congruency: "incongruent", condition: "incongruent" } },
+  { id: "f5", blockId: "block-2", reactionTimeMs: 470, response: "left", isCorrect: true, labels: { switchType: "repeat", condition: "repeat" } },
+  { id: "f6", blockId: "block-2", reactionTimeMs: 550, response: "right", isCorrect: true, labels: { switchType: "switch", condition: "switch" } },
+];
+
+export const recognitionMemoryTrials: TrialRecord<string>[] = [
+  { id: "r1", phase: "immediate", response: "old", wasPreviouslySeen: true, reactionTimeMs: 700 },
+  { id: "r2", phase: "immediate", response: "new", wasPreviouslySeen: false, reactionTimeMs: 650 },
+  { id: "r3", phase: "immediate", response: "old", wasPreviouslySeen: false, reactionTimeMs: 680 },
+  { id: "r4", phase: "immediate", response: "new", wasPreviouslySeen: true, reactionTimeMs: 720 },
+  { id: "r5", phase: "delayed", response: "old", wasPreviouslySeen: true, reactionTimeMs: 760 },
+  { id: "r6", phase: "delayed", response: "new", wasPreviouslySeen: false, reactionTimeMs: 710 },
+];
+
+export const processingSpeedTrials: TrialRecord<string>[] = [
+  { id: "p1", blockId: "minute-1", durationMs: 60000, response: "A", isCorrect: true },
+  { id: "p2", blockId: "minute-1", durationMs: 60000, response: "B", isCorrect: true },
+  { id: "p3", blockId: "minute-1", durationMs: 60000, response: "C", isCorrect: false },
+  { id: "p4", blockId: "minute-2", durationMs: 60000, response: "D", isCorrect: true },
+  { id: "p5", blockId: "minute-2", durationMs: 60000, response: "E", isCorrect: true },
+];
+
 export const wellbeingScale: ScaleDefinition<number> = {
   id: "wellbeing",
   label: "Wellbeing Check",

@@ -1,8 +1,8 @@
 # psychometric
 
-`psychometric` is a TypeScript-first toolkit for psychometric scoring, behavioral task summaries, QC flags, norms plumbing, and versioned measurement exports.
+`psychometric` is a TypeScript-first toolkit for psychometric scoring, behavioral task summaries, quality-control flags, norm lookup plumbing, and versioned measurement exports.
 
-It is built for real assessment workflows in JavaScript and TypeScript, especially:
+It is designed for practical assessment workflows in JavaScript and TypeScript, especially:
 
 - choice reaction time
 - simple reaction time
@@ -10,25 +10,28 @@ It is built for real assessment workflows in JavaScript and TypeScript, especial
 - questionnaire and scale scoring
 - repeated-session and exportable scoring pipelines
 
-## What is stable now
+## Stable scope
 
-The current stable top-level API is centered on first-production workflows:
+The stable package surface is focused on first-production workflows:
 
 - reaction-time session summaries from `TrialRecord[]`
+- go/no-go and condition-based inhibition summaries
+- congruency, cueing, and switching contrasts for interference-style tasks
 - span / sequence task summaries
-- questionnaire scoring with reverse scoring, subscales, composites, prorating, and QC flags
-- reliability and score-precision helpers for practical test scoring
-- norm lookup infrastructure and versioned export envelopes
+- recognition-memory and paired-associate summaries
+- processing-speed summaries
+- questionnaire scoring with reverse scoring, subscales, composites, prorating, and transforms
+- practical reliability and score-precision helpers
+- norm lookup, QC bundles, and versioned export envelopes
+- repeated-session comparison summaries
 
-## What is intentionally experimental
+## Experimental scope
 
-Some helpers are shipped but intentionally isolated under `experimental` rather than treated as part of the strongest API guarantees:
+Some utilities remain intentionally isolated under `experimental` rather than treated as part of the strongest API guarantees:
 
 - bootstrap and permutation scaffolding
 - omega total from externally supplied factor parameters
-- validity helpers such as incremental validity and ROC/AUC summaries
-
-Those utilities are useful, but they should be treated as provisional compared with the core scoring and session-summary workflows.
+- advanced validity helpers such as incremental validity and ROC/AUC summaries
 
 ## Installation
 
@@ -39,12 +42,13 @@ npm install psychometric
 ## Stable modules
 
 - `behavioral`: reaction-time classification and summary helpers, span/sequence summaries, practice vs scored separation
-- `scores`: reverse scoring, prorating, subscales, composites, transformed scores, and change/discrepancy utilities
+- `scores`: reverse scoring, prorating, subscales, composites, transformed scores, and change/discrepancy helpers
 - `reliability`: Cronbach's alpha, split-half reliability, Spearman-Brown, item-total correlations, SEM, and score confidence intervals
 - `norms`: generic norm-table lookup and raw-to-normed score conversion infrastructure
 - `qc`: reusable quality-flag generation for timing, missingness, protocol mismatch, and session completeness
 - `exports`: versioned metadata envelopes for session summaries, trial exports, scale-score exports, and norm lookup exports
 - `schemas`: reusable TS types for trials, scales, scores, sessions, norms, and export envelopes
+- `core`: lower-level statistical utilities for library-style consumers who want direct access to primitives
 
 ## Example: Reaction-Time Summary
 
@@ -62,18 +66,21 @@ const trials: TrialRecord[] = [
   { id: "t4", blockId: "late", stimulusSide: "right", reactionTimeMs: null, isCorrect: false },
 ];
 
-const summary = summarizeReactionTime(trials, {
+const reactionTime = summarizeReactionTime(trials, {
   minimumValidTrials: 3,
 });
 
 const qualityFlags = buildQualityFlags({
-  reactionTimeSummary: summary,
+  reactionTimeSummary: reactionTime,
   minimumValidTrials: 3,
 });
 
-console.log(summary.counts.valid);
-console.log(summary.timing.medianCorrectRtMs);
-console.log(qualityFlags);
+const workflow = {
+  reactionTime,
+  qualityFlags,
+};
+
+console.log(workflow);
 ```
 
 ## Example: Scale And Subscale Scoring
@@ -114,10 +121,14 @@ const score = scoreLikertScale(
   { minAnswered: 2, prorate: true, mean: 18, standardDeviation: 4 },
 );
 
-console.log(score.raw);
-console.log(score.subscales);
-console.log(score.transforms?.t);
-console.log(score.qualityFlags);
+const questionnaireWorkflow = {
+  score,
+  subscales: score.subscales,
+  transforms: score.transforms,
+  qualityFlags: score.qualityFlags,
+};
+
+console.log(questionnaireWorkflow);
 ```
 
 ## Example: Norm Lookup, QC, And Versioned Export
@@ -166,12 +177,22 @@ const norms: NormTable = {
 };
 
 const score = scoreLikertScale(scale, { i1: 4, i2: 2, i3: 5, i4: 3 });
-const flags = buildQualityFlags({ responses: [4, 2, 5, 3] });
-const norm = lookupNorm(norms, score.raw ?? 0, { age: 24 });
+if (score.raw === null) {
+  throw new Error("A raw score is required before norm lookup can run.");
+}
 
-console.log(createScaleScoresExport([score], "2.0.0"));
-console.log(createNormLookupExport(norm, "2.0.0"));
-console.log(flags);
+const qualityFlags = buildQualityFlags({ responses: [4, 2, 5, 3] });
+const normLookup = lookupNorm(norms, score.raw, { age: 24 });
+
+const workflow = {
+  score,
+  qualityFlags,
+  normLookup,
+  scoreExport: createScaleScoresExport([score], "2.0.0"),
+  normExport: createNormLookupExport(normLookup, "2.0.0"),
+};
+
+console.log(workflow);
 ```
 
 ## Public API shape
@@ -195,10 +216,10 @@ import {
 Stable groups are also available as namespaces:
 
 ```ts
-import { behavioral, scores, reliability, norms, qc, exports } from "psychometric";
+import { behavioral, core, scores, reliability, norms, qc, exports } from "psychometric";
 ```
 
-Experimental helpers are isolated explicitly:
+Experimental helpers remain explicitly isolated:
 
 ```ts
 import { experimental } from "psychometric";
@@ -215,15 +236,15 @@ Versioned exports use explicit metadata envelopes with:
 - `packageVersion`
 - `generatedAt`
 
-This is intended to make downstream Noema-like integrations resilient to future schema evolution without tying the public API to product-specific names.
-
 ## Examples folder
 
 Additional integration-oriented examples live in:
 
 - `examples/reaction-time-session.ts`
+- `examples/go-no-go-session.ts`
 - `examples/scale-scoring.ts`
 - `examples/norms-qc-export.ts`
+- `examples/repeated-session-comparison.ts`
 
 ## Development
 

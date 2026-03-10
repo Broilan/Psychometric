@@ -1,4 +1,4 @@
-import { ExportEnvelope, ExportMetadata, NormLookupExport, NormLookupResult, ScaleScoresExport, ScoreResult, SessionSummary, SessionSummaryExport, TrialRecord, TrialRecordsExport } from '../schemas';
+import { ExportEnvelope, ExportMetadata, NormLookupExport, NormLookupResult, QualityFlagBundle, QualityFlagsExport, ScaleScoresExport, ScoreResult, SessionComparisonExport, SessionComparisonResult, SessionSummary, SessionSummaryExport, TrialRecord, TrialRecordsExport } from '../schemas';
 import { ExportKind } from '../versioning';
 export declare function createExportMetadata(kind: ExportKind, packageVersion: string, schemaVersion: string): ExportMetadata;
 export declare function createExportEnvelope<TPayload>(payload: TPayload, metadata: ExportMetadata): ExportEnvelope<TPayload>;
@@ -6,6 +6,8 @@ export declare function createSessionSummaryExport(summary: SessionSummary, pack
 export declare function createTrialRecordsExport<TTrial extends TrialRecord>(trials: readonly TTrial[], packageVersion: string): TrialRecordsExport<TTrial>;
 export declare function createScaleScoresExport(scores: readonly ScoreResult[], packageVersion: string): ScaleScoresExport;
 export declare function createNormLookupExport(lookup: NormLookupResult, packageVersion: string): NormLookupExport;
+export declare function createQualityFlagsExport(bundle: QualityFlagBundle, packageVersion: string): QualityFlagsExport;
+export declare function createSessionComparisonExport(comparison: SessionComparisonResult, packageVersion: string): SessionComparisonExport;
 export declare function exportSessionSummaryJson(summary: SessionSummary, metadata: ExportMetadata): string;
 export declare function exportTrialsJson(trials: readonly TrialRecord[], metadata: ExportMetadata): string;
 export declare function exportScaleScoresJson(scores: readonly ScoreResult[], metadata: ExportMetadata): string;

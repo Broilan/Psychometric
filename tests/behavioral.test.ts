@@ -3,12 +3,21 @@ import { describe, expect, it } from "vitest";
 import {
   buildQualityFlags,
   classifyReactionTimeTrial,
+  computeConditionContrast,
   scoreSpanTask,
   separatePracticeTrials,
+  summarizeGoNoGo,
+  summarizeInterferenceTask,
+  summarizeProcessingSpeed,
+  summarizeRecognitionMemory,
   summarizeReactionTime,
 } from "../src";
 import {
   choiceReactionTimeTrials,
+  flankerTrials,
+  goNoGoTrials,
+  processingSpeedTrials,
+  recognitionMemoryTrials,
   simpleReactionTimeTrials,
   spanTaskTrials,
 } from "./fixtures/workflows";
@@ -119,5 +128,71 @@ describe("behavioral workflows", () => {
       repetitions: 1,
       prematureResponses: 0,
     });
+  });
+
+  it("summarizes go/no-go trials with commission and omission breakdowns", () => {
+    const summary = summarizeGoNoGo(goNoGoTrials);
+    const qcFlags = buildQualityFlags({
+      commissionErrorRate: summary.falseAlarmRate,
+      conditionCounts: {
+        go: summary.goSummary?.counts.total ?? 0,
+        noGo: summary.noGoSummary?.counts.total ?? 0,
+      },
+      minimumConditionTrials: 2,
+    });
+
+    expect(summary.commissionErrors).toBe(1);
+    expect(summary.omissionErrors).toBe(1);
+    expect(summary.inhibitionSuccessRate).toBeCloseTo(0.5, 6);
+    expect(summary.falseAlarmRate).toBeCloseTo(0.5, 6);
+    expect(summary.goSummary?.timing.meanMs).toBeCloseTo(330, 6);
+    expect(summary.contrasts?.[0]).toMatchObject({
+      leftLabel: "go",
+      rightLabel: "no-go",
+      metric: "accuracy",
+    });
+    expect(qcFlags.map((flag) => flag.code)).toContain("excessive-commission-errors");
+  });
+
+  it("computes interference contrasts for congruency and switching tasks", () => {
+    const summary = summarizeInterferenceTask(flankerTrials);
+    const congruencyContrast = summary.contrasts?.find((contrast) => contrast.leftLabel === "incongruent");
+    const switchContrast = summary.contrasts?.find((contrast) => contrast.leftLabel === "switch");
+
+    expect(summary.interferenceEffectMs).toBeCloseTo(105, 6);
+    expect(summary.switchingCostMs).toBeCloseTo(80, 6);
+    expect(congruencyContrast?.rawDifference).toBeCloseTo(105, 6);
+    expect(switchContrast?.rawDifference).toBeCloseTo(80, 6);
+    expect(
+      computeConditionContrast(530, 420, {
+        leftLabel: "incongruent",
+        rightLabel: "congruent",
+        metric: "rt",
+        standardizer: 50,
+      }),
+    ).toMatchObject({
+      rawDifference: 110,
+      proportionalDifference: 110 / 420,
+      standardizedDifference: 2.2,
+    });
+  });
+
+  it("summarizes recognition memory and processing speed workflows", () => {
+    const recognition = summarizeRecognitionMemory(recognitionMemoryTrials);
+    const speed = summarizeProcessingSpeed(processingSpeedTrials, { durationMinutes: 2 });
+
+    expect(recognition.hitRate).toBeCloseTo(2 / 3, 6);
+    expect(recognition.falseAlarmRate).toBeCloseTo(1 / 3, 6);
+    expect(recognition.correctedRecognition).toBeCloseTo(1 / 3, 6);
+    expect(recognition.delayedChange).toBeCloseTo(0.5, 6);
+
+    expect(speed.counts).toEqual({
+      totalAttempted: 5,
+      totalCorrect: 4,
+      totalIncorrect: 1,
+    });
+    expect(speed.rates.accuracy).toBeCloseTo(0.8, 6);
+    expect(speed.rates.throughputPerMinute).toBeCloseTo(2, 6);
+    expect(speed.blockSummaries?.["minute-1"]?.rates?.accuracy).toBeCloseTo(2 / 3, 6);
   });
 });

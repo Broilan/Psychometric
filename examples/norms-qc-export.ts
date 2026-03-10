@@ -6,6 +6,7 @@ import {
   scoreLikertScale,
   type NormTable,
   type ScaleDefinition,
+  type SessionSummary,
 } from "psychometric";
 
 const scale: ScaleDefinition<number> = {
@@ -40,12 +41,34 @@ const norms: NormTable = {
   ],
 };
 
-const score = scoreLikertScale(scale, { i1: 4, i2: 2, i3: 5, i4: 3 }, { mean: 12, standardDeviation: 3 });
-const flags = buildQualityFlags({
+const score = scoreLikertScale(
+  scale,
+  { i1: 4, i2: 2, i3: 5, i4: 3 },
+  { mean: 12, standardDeviation: 3 },
+);
+
+if (score.raw === null) {
+  throw new Error("A raw score is required before norm lookup can run.");
+}
+
+const qualityFlags = buildQualityFlags({
   responses: [4, 2, 5, 3],
 });
-const norm = lookupNorm(norms, score.raw ?? 0, { age: 24 });
+const normLookup = lookupNorm(norms, score.raw, { age: 24 });
 
-console.log(createScaleScoresExport([score], "2.0.0"));
-console.log(createNormLookupExport(norm, "2.0.0"));
-console.log(flags);
+const workflow: SessionSummary = {
+  summaryType: "session-summary",
+  session: { sessionId: "wellbeing-001", participantId: "p-003" },
+  scores: [score],
+  qualityFlags,
+  summaries: {
+    normLookup,
+  },
+};
+
+const scoreExport = createScaleScoresExport([score], "2.0.0");
+const normExport = createNormLookupExport(normLookup, "2.0.0");
+
+console.log(workflow);
+console.log(scoreExport);
+console.log(normExport);

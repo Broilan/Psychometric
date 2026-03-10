@@ -7,6 +7,10 @@ export interface ItemStatistic {
     itemIndex: number;
     correlation: number;
 }
+export interface OmegaTotalInput {
+    loadings: readonly number[];
+    errorVariances: readonly number[];
+}
 export declare function cronbachAlpha(matrix: readonly (readonly number[])[]): number;
 export declare function splitHalfReliability(matrix: readonly (readonly number[])[], split?: "odd-even" | "first-second"): number;
 export declare function spearmanBrown(reliability: number, newLengthFactor?: number): number;
@@ -21,13 +25,4 @@ export declare function scoreConfidenceIntervalFromSem(observedScore: number, se
     lower: number;
     upper: number;
 };
-export interface OmegaTotalInput {
-    loadings: readonly number[];
-    errorVariances: readonly number[];
-}
-/**
- * Experimental: omega total is only supported from explicit factor loadings
- * and error variances. This package does not estimate those latent parameters.
- */
-export declare function omegaTotal(input: OmegaTotalInput): number | null;
 export declare function averageInterItemCovariance(matrix: readonly (readonly number[])[]): number;

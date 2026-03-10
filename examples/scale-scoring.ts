@@ -1,6 +1,7 @@
 import {
   scoreLikertScale,
   type ScaleDefinition,
+  type SessionSummary,
 } from "psychometric";
 
 const scale: ScaleDefinition<number> = {
@@ -27,10 +28,23 @@ const scale: ScaleDefinition<number> = {
   },
 };
 
-const result = scoreLikertScale(
+const score = scoreLikertScale(
   scale,
   { i1: 4, i2: 2, i3: 5, i4: 3, i5: null, i6: 4 },
   { minAnswered: 2, prorate: true, mean: 18, standardDeviation: 4 },
 );
 
-console.log(result);
+const questionnaireWorkflow: SessionSummary = {
+  summaryType: "session-summary",
+  session: { sessionId: "scale-001", participantId: "p-002" },
+  scores: [score],
+  qualityFlags: score.qualityFlags,
+  summaries: {
+    questionnaire: {
+      scaleId: scale.id,
+      transforms: score.transforms,
+    },
+  },
+};
+
+console.log(questionnaireWorkflow);

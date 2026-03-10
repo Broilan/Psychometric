@@ -12,6 +12,11 @@ export interface ItemStatistic {
   correlation: number;
 }
 
+export interface OmegaTotalInput {
+  loadings: readonly number[];
+  errorVariances: readonly number[];
+}
+
 export function cronbachAlpha(matrix: readonly (readonly number[])[]): number {
   const respondents = matrix.map((row) => ensureFiniteNumbers(row, "row"));
   if (respondents.length < 2 || respondents[0].length < 2) {
@@ -112,24 +117,6 @@ export function scoreConfidenceIntervalFromSem(
     lower: observedScore - z * sem,
     upper: observedScore + z * sem,
   };
-}
-
-export interface OmegaTotalInput {
-  loadings: readonly number[];
-  errorVariances: readonly number[];
-}
-
-/**
- * Experimental: omega total is only supported from explicit factor loadings
- * and error variances. This package does not estimate those latent parameters.
- */
-export function omegaTotal(input: OmegaTotalInput): number | null {
-  const loadings = ensureFiniteNumbers(input.loadings, "loadings");
-  const errorVariances = ensureFiniteNumbers(input.errorVariances, "errorVariances");
-  assertSameLength(loadings, errorVariances, "loadings and errorVariances");
-  const numerator = sum(loadings) ** 2;
-  const denominator = numerator + sum(errorVariances);
-  return denominator ? numerator / denominator : null;
 }
 
 export function averageInterItemCovariance(matrix: readonly (readonly number[])[]): number {

@@ -3,8 +3,12 @@ import type {
   ExportMetadata,
   NormLookupExport,
   NormLookupResult,
+  QualityFlagBundle,
+  QualityFlagsExport,
   ScaleScoresExport,
   ScoreResult,
+  SessionComparisonExport,
+  SessionComparisonResult,
   SessionSummary,
   SessionSummaryExport,
   TrialRecord,
@@ -14,7 +18,9 @@ import {
   EXPORT_FORMAT_VERSION,
   NORM_LOOKUP_EXPORT_SCHEMA_VERSION,
   PACKAGE_NAME,
+  QUALITY_FLAGS_EXPORT_SCHEMA_VERSION,
   SCALE_SCORE_EXPORT_SCHEMA_VERSION,
+  SESSION_COMPARISON_SCHEMA_VERSION,
   SESSION_SUMMARY_SCHEMA_VERSION,
   TRIAL_RECORD_EXPORT_SCHEMA_VERSION,
   type ExportKind,
@@ -68,6 +74,20 @@ export function createNormLookupExport(
   packageVersion: string,
 ): NormLookupExport {
   return createExportEnvelope(lookup, createExportMetadata("norm-lookup", packageVersion, NORM_LOOKUP_EXPORT_SCHEMA_VERSION));
+}
+
+export function createQualityFlagsExport(
+  bundle: QualityFlagBundle,
+  packageVersion: string,
+): QualityFlagsExport {
+  return createExportEnvelope(bundle, createExportMetadata("quality-flags", packageVersion, QUALITY_FLAGS_EXPORT_SCHEMA_VERSION));
+}
+
+export function createSessionComparisonExport(
+  comparison: SessionComparisonResult,
+  packageVersion: string,
+): SessionComparisonExport {
+  return createExportEnvelope(comparison, createExportMetadata("session-comparison", packageVersion, SESSION_COMPARISON_SCHEMA_VERSION));
 }
 
 export function exportSessionSummaryJson(summary: SessionSummary, metadata: ExportMetadata): string {

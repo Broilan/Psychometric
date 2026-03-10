@@ -1,6 +1,6 @@
 import { bootstrap, permutationTest } from './core';
-import { omegaTotal } from './Reliability';
-import { convergentDiscriminantSummary, criterionCorrelation, incrementalValidity, knownGroupsComparison, rocCurve, screeningAssociation } from './Validity';
+import { omegaTotal } from './reliability/omega';
+import { convergentDiscriminantSummary, criterionCorrelation, incrementalValidity, knownGroupsComparison, rocCurve, screeningAssociation } from './validity';
 /**
  * Experimental helpers are shipped for evaluation but are not part of the
  * package's strongest long-term API guarantees yet.

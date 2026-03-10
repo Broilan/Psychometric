@@ -1,181 +1,32 @@
-import {
-  classifyReactionTimeTrial,
-  scoreSpanTask,
-  separatePracticeTrials,
-  summarizeLatency,
-  summarizeReactionTime,
-} from "./behavioral";
-import {
-  confidenceIntervalMean,
-  cohensD,
-  hedgesG,
-  iqr,
-  mad,
-  max,
-  mean,
-  median,
-  min,
-  quantile,
-  standardDeviation,
-  summarize,
-  variance,
-} from "./core";
-import {
-  createExportEnvelope,
-  createExportMetadata,
-  createNormLookupExport,
-  createScaleScoresExport,
-  createSessionSummaryExport,
-  createTrialRecordsExport,
-  exportCsv,
-  exportEnvelope,
-  exportScaleScoresJson,
-  exportSessionSummaryJson,
-  exportTrialsJson,
-} from "./exports";
-import { experimental } from "./experimental";
-import {
-  convertZToNorms,
-  interpretNorm,
-  lookupAgeBand,
-  lookupEducationBand,
-  lookupNorm,
-  percentileLookup,
-  rawToNormed,
-} from "./norms";
-import { buildQualityFlags, reliabilityWarning } from "./qc";
-import {
-  alphaIfItemDeleted,
-  alternateFormsReliability,
-  cohensKappa,
-  cronbachAlpha,
-  interRaterAgreement,
-  itemTotalCorrelations,
-  scoreConfidenceIntervalFromSem,
-  spearmanBrown,
-  splitHalfReliability,
-  standardErrorOfMeasurement,
-  testRetestReliability,
-} from "./Reliability";
-import {
-  applyReverseScoring,
-  changeScore,
-  discrepancyScore,
-  percentileRankFromNormSample,
-  prorateScore,
-  reliableChangeIndex,
-  reverseScore,
-  scoreBattery,
-  scoreComposite,
-  scoreConfidenceInterval,
-  scoreDistributionSummary,
-  scoreLikertScale,
-  scoreSubscales,
-  standardizeZ,
-  toPercentileRank,
-  toScaledScore,
-  toStanine,
-  toTScore,
-  weightedSumScore,
-} from "./scores";
+export * as behavioral from "./behavioral";
+export * as core from "./core";
+export * as exports from "./exports";
+export * as norms from "./norms";
+export * as qc from "./qc";
+export * as reliability from "./reliability";
+export * as scores from "./scores";
+export * as longitudinal from "./longitudinal";
 
-export const behavioral = {
-  classifyReactionTimeTrial,
-  scoreSpanTask,
-  separatePracticeTrials,
-  summarizeLatency,
-  summarizeReactionTime,
-};
-
-export const core = {
-  confidenceIntervalMean,
-  cohensD,
-  hedgesG,
-  iqr,
-  mad,
-  max,
-  mean,
-  median,
-  min,
-  quantile,
-  standardDeviation,
-  summarize,
-  variance,
-};
-
-export const exports = {
-  createExportEnvelope,
-  createExportMetadata,
-  createNormLookupExport,
-  createScaleScoresExport,
-  createSessionSummaryExport,
-  createTrialRecordsExport,
-  exportCsv,
-  exportEnvelope,
-  exportScaleScoresJson,
-  exportSessionSummaryJson,
-  exportTrialsJson,
-};
-
-export const norms = {
-  convertZToNorms,
-  interpretNorm,
-  lookupAgeBand,
-  lookupEducationBand,
-  lookupNorm,
-  percentileLookup,
-  rawToNormed,
-};
-
-export const qc = {
-  buildQualityFlags,
-  reliabilityWarning,
-};
-
-export const reliability = {
-  alphaIfItemDeleted,
-  alternateFormsReliability,
-  cohensKappa,
-  cronbachAlpha,
-  interRaterAgreement,
-  itemTotalCorrelations,
-  scoreConfidenceIntervalFromSem,
-  spearmanBrown,
-  splitHalfReliability,
-  standardErrorOfMeasurement,
-  testRetestReliability,
-};
-
-export const scores = {
-  applyReverseScoring,
-  changeScore,
-  discrepancyScore,
-  percentileRankFromNormSample,
-  prorateScore,
-  reliableChangeIndex,
-  reverseScore,
-  scoreBattery,
-  scoreComposite,
-  scoreConfidenceInterval,
-  scoreDistributionSummary,
-  scoreLikertScale,
-  scoreSubscales,
-  standardizeZ,
-  toPercentileRank,
-  toScaledScore,
-  toStanine,
-  toTScore,
-  weightedSumScore,
-};
-
-export { experimental };
+export { experimental } from "./experimental";
 
 export {
   classifyReactionTimeTrial,
+  computeConditionContrast,
   scoreSpanTask,
   separatePracticeTrials,
   summarizeLatency,
+  summarizeConditionedReactionTime,
+  summarizeGoNoGo,
+  summarizeInterferenceTask,
+  summarizePairedAssociates,
+  summarizeProcessingSpeed,
+  summarizeRecognitionMemory,
   summarizeReactionTime,
+  type GoNoGoSummary,
+  type InterferenceTaskSummary,
+  type PairedAssociatesSummary,
+  type ProcessingSpeedOptions,
+  type RecognitionMemorySummary,
   type ReactionTimeOptions,
   type ReactionTimeSummary,
   type ReactionTimeTrialClassification,
@@ -187,23 +38,16 @@ export {
   confidenceIntervalMean,
   cohensD,
   hedgesG,
-  iqr,
-  mad,
-  max,
-  mean,
-  median,
-  min,
-  quantile,
-  standardDeviation,
   summarize,
-  variance,
 } from "./core";
 
 export {
   createExportEnvelope,
   createExportMetadata,
   createNormLookupExport,
+  createQualityFlagsExport,
   createScaleScoresExport,
+  createSessionComparisonExport,
   createSessionSummaryExport,
   createTrialRecordsExport,
   exportCsv,
@@ -222,6 +66,12 @@ export {
   percentileLookup,
   rawToNormed,
 } from "./norms";
+
+export {
+  compareSessions,
+  type CompareSessionsOptions,
+  type SessionComparisonInput,
+} from "./longitudinal";
 
 export {
   buildQualityFlags,
@@ -242,17 +92,24 @@ export {
   standardErrorOfMeasurement,
   testRetestReliability,
   type ItemStatistic,
+  type OmegaTotalInput,
   type ReliabilityEstimate,
-} from "./Reliability";
+} from "./reliability";
 
 export type {
   BlockRecord,
+  ConditionContrastResult,
+  ConditionSummary,
   ConfidenceInterval,
+  CountRateSummary,
   DeviceMetadata,
   ExportEnvelope,
   ExportMetadata,
+  InhibitionTaskSummary,
   InterpretationBand,
   ItemDefinition,
+  LatencySummary,
+  MemoryTaskSummary,
   NormBand,
   NormLookupExport,
   NormLookupResult,
@@ -260,12 +117,18 @@ export type {
   NormTable,
   PracticeSplit,
   Primitive,
+  ProcessingSpeedSummary,
   ProtocolMetadata,
   QualityFlag,
+  QualityFlagBundle,
+  QualityFlagsExport,
   ScaleDefinition,
   ScaleScoresExport,
   ScoreResult,
   ScoreTransformMap,
+  SessionComparisonExport,
+  SessionComparisonMetric,
+  SessionComparisonResult,
   SessionMetadata,
   SessionSummary,
   SessionSummaryExport,
@@ -302,13 +165,17 @@ export {
   EXPORT_FORMAT_VERSION,
   NORM_LOOKUP_EXPORT_SCHEMA_VERSION,
   PACKAGE_NAME,
+  QUALITY_FLAGS_EXPORT_SCHEMA_VERSION,
   SCALE_SCORE_EXPORT_SCHEMA_VERSION,
+  SESSION_COMPARISON_SCHEMA_VERSION,
   SESSION_SUMMARY_SCHEMA_VERSION,
   TRIAL_RECORD_EXPORT_SCHEMA_VERSION,
   type ExportFormatVersion,
   type ExportKind,
   type NormLookupExportSchemaVersion,
+  type QualityFlagsExportSchemaVersion,
   type ScaleScoreExportSchemaVersion,
+  type SessionComparisonSchemaVersion,
   type SessionSummarySchemaVersion,
   type TrialRecordExportSchemaVersion,
 } from "./versioning";

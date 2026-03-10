@@ -2,6 +2,7 @@ import {
   buildQualityFlags,
   createSessionSummaryExport,
   summarizeReactionTime,
+  type SessionSummary,
   type TrialRecord,
 } from "psychometric";
 
@@ -18,14 +19,13 @@ const qualityFlags = buildQualityFlags({
   minimumValidTrials: 3,
 });
 
-const exportEnvelope = createSessionSummaryExport(
-  {
-    summaryType: "session-summary",
-    session: { sessionId: "rt-001", participantId: "p-001" },
-    summaries: { reactionTime },
-    qualityFlags,
-  },
-  "2.0.0",
-);
+const sessionSummary: SessionSummary = {
+  summaryType: "session-summary",
+  session: { sessionId: "rt-001", participantId: "p-001" },
+  summaries: { reactionTime },
+  qualityFlags,
+};
+
+const exportEnvelope = createSessionSummaryExport(sessionSummary, "2.0.0");
 
 console.log(exportEnvelope);
