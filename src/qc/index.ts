@@ -11,9 +11,18 @@ export interface BuildQualityFlagsInput {
     errorRate?: number;
   };
   conditionCounts?: Record<string, number>;
+  requiredConditions?: readonly string[];
+  requiredConditionGroups?: ReadonlyArray<{
+    code: string;
+    label: string;
+    conditions: readonly string[];
+    minimumTrials?: number;
+  }>;
   responses?: readonly (number | null | undefined)[];
   expectedProtocolVersion?: string;
   actualProtocolVersion?: string;
+  expectedProtocolId?: string;
+  actualProtocolId?: string;
   device?: DeviceMetadata;
   completed?: boolean;
   focusInterruptions?: number;
@@ -31,6 +40,8 @@ export interface BuildQualityFlagsInput {
   observedLatenciesMs?: readonly number[];
   hasDelayedPhase?: boolean;
   requiredDelayedPhase?: boolean;
+  spanLevelCounts?: Record<string, number>;
+  requiredSpanLevels?: readonly (string | number)[];
 }
 
 export function buildQualityFlags(input: BuildQualityFlagsInput): QualityFlag[] {
@@ -106,6 +117,15 @@ export function buildQualityFlags(input: BuildQualityFlagsInput): QualityFlag[] 
     });
   }
 
+  if (input.expectedProtocolId && input.actualProtocolId && input.expectedProtocolId !== input.actualProtocolId) {
+    flags.push({
+      code: "protocol-mismatch",
+      severity: "error",
+      message: "Observed protocol identifier does not match the expected protocol identifier.",
+      source: "qc",
+    });
+  }
+
   if (input.completed === false) {
     flags.push({
       code: "incomplete-session",
@@ -127,6 +147,18 @@ export function buildQualityFlags(input: BuildQualityFlagsInput): QualityFlag[] 
   }
 
   if (input.conditionCounts) {
+    if (input.requiredConditions?.length) {
+      const missingConditions = input.requiredConditions.filter((condition) => !input.conditionCounts?.[condition]);
+      if (missingConditions.length) {
+        flags.push({
+          code: "missing-key-conditions",
+          severity: "warning",
+          message: "One or more expected conditions were not observed.",
+          source: "qc",
+          metadata: { conditions: missingConditions },
+        });
+      }
+    }
     Object.entries(input.conditionCounts).forEach(([condition, count]) => {
       if (count < minimumConditionTrials) {
         flags.push({
@@ -137,6 +169,20 @@ export function buildQualityFlags(input: BuildQualityFlagsInput): QualityFlag[] 
           threshold: minimumConditionTrials,
           source: "qc",
           metadata: { condition },
+        });
+      }
+    });
+    input.requiredConditionGroups?.forEach((group) => {
+      const threshold = group.minimumTrials ?? minimumConditionTrials;
+      const insufficient = group.conditions.filter((condition) => (input.conditionCounts?.[condition] ?? 0) < threshold);
+      if (insufficient.length) {
+        flags.push({
+          code: group.code,
+          severity: "warning",
+          message: `${group.label} coverage is insufficient.`,
+          threshold,
+          source: "qc",
+          metadata: { conditions: insufficient },
         });
       }
     });
@@ -188,6 +234,22 @@ export function buildQualityFlags(input: BuildQualityFlagsInput): QualityFlag[] 
       message: "A delayed-memory phase was expected but not completed.",
       source: "qc",
     });
+  }
+
+  if (input.requiredSpanLevels?.length) {
+    const missingLevels = input.requiredSpanLevels.filter((level) => {
+      const key = String(level);
+      return !input.spanLevelCounts?.[key];
+    });
+    if (missingLevels.length) {
+      flags.push({
+        code: "incomplete-span-level-coverage",
+        severity: "warning",
+        message: "One or more required span levels were not observed.",
+        source: "qc",
+        metadata: { spanLevels: missingLevels.map(String) },
+      });
+    }
   }
 
   if (input.device?.deviceType === "mobile") {

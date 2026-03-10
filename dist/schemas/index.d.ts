@@ -10,11 +10,17 @@ export interface TrialConditionLabels {
     condition?: string;
     congruency?: CongruencyLabel;
     switchType?: SwitchLabel;
+    scoringPhase?: "practice" | "scored" | string;
     goNoGoType?: GoNoGoLabel;
     stopSignalType?: StopSignalLabel;
     cueValidity?: "valid" | "invalid" | "neutral" | string;
+    cueType?: string;
+    taskSet?: string;
     responseSide?: "left" | "right" | "center" | string;
     dominantSide?: "dominant" | "non-dominant" | string;
+    responseKey?: string;
+    responseModality?: "keyboard" | "touch" | "mouse" | "voice" | string;
+    direction?: "forward" | "backward" | string;
 }
 export interface ConfidenceInterval {
     lower: number;
@@ -66,13 +72,20 @@ export interface TrialRecord<TResponse = Primitive> {
     target?: string;
     targetMetadata?: Record<string, Primitive | Primitive[] | undefined>;
     expectedResponse?: TResponse;
+    correctResponse?: TResponse;
     response?: TResponse;
+    observedResponse?: TResponse;
+    responseSide?: "left" | "right" | "center" | string;
+    responseKey?: string;
     responseMetadata?: Record<string, Primitive | Primitive[] | undefined>;
     isCorrect?: boolean;
     isOmission?: boolean;
     isAnticipation?: boolean;
     isTimeout?: boolean;
     isInvalid?: boolean;
+    invalidReasons?: readonly string[];
+    omissionReason?: string;
+    timeoutMs?: number | null;
     reactionTimeMs?: number | null;
     latencyMs?: number | null;
     durationMs?: number | null;
@@ -90,6 +103,12 @@ export interface TrialRecord<TResponse = Primitive> {
     wasPreviouslySeen?: boolean;
     recalledAssociates?: readonly Primitive[];
     errorTaxonomy?: Record<string, Primitive | Primitive[] | undefined>;
+    focusInterrupted?: boolean;
+    focusInterruptionCount?: number;
+    sessionMetadata?: Partial<SessionMetadata>;
+    protocolMetadata?: Partial<ProtocolMetadata>;
+    deviceMetadata?: Partial<DeviceMetadata>;
+    exportMetadata?: Partial<ExportMetadata>;
     labels?: TrialConditionLabels;
     metadata?: Record<string, Primitive | Primitive[] | undefined>;
 }
@@ -196,6 +215,8 @@ export interface LatencySummary {
     medianMs?: number | null;
     standardDeviationMs?: number | null;
     coefficientOfVariation?: number | null;
+    minMs?: number | null;
+    maxMs?: number | null;
 }
 export interface CountRateSummary {
     counts: Record<string, number>;
@@ -203,6 +224,8 @@ export interface CountRateSummary {
 }
 export interface ConditionSummary {
     label: string;
+    schemaVersion?: string;
+    taskFamily?: string;
     counts: {
         total: number;
         valid: number;
@@ -222,8 +245,11 @@ export interface ConditionSummary {
         commissionError?: number;
     };
     timing: LatencySummary;
+    metadata?: Record<string, Primitive | Primitive[] | undefined>;
 }
 export interface ConditionContrastResult {
+    schemaVersion?: string;
+    contrastType?: string;
     leftLabel: string;
     rightLabel: string;
     metric: string;
@@ -239,12 +265,15 @@ export interface QualityFlagBundle {
 }
 export interface InhibitionTaskSummary {
     summaryType: string;
+    schemaVersion?: string;
+    taskFamily?: string;
     counts: CountRateSummary["counts"];
     rates: NonNullable<CountRateSummary["rates"]>;
     timing: LatencySummary;
     conditionSummaries?: Record<string, ConditionSummary>;
     contrasts?: ConditionContrastResult[];
     qualityFlags?: QualityFlag[];
+    metadata?: Record<string, Primitive | Primitive[] | undefined>;
 }
 export interface MemoryTaskSummary {
     summaryType: string;
@@ -282,9 +311,11 @@ export interface SessionComparisonMetric {
     change: number | null;
     percentChange?: number | null;
     reliableChangeIndex?: number | null;
+    direction?: "increase" | "decrease" | "no-change";
 }
 export interface SessionComparisonResult {
     summaryType: "session-comparison";
+    schemaVersion?: string;
     baselineSessionId?: string;
     followUpSessionId?: string;
     protocolCompatible: boolean;
@@ -293,6 +324,7 @@ export interface SessionComparisonResult {
     practiceEffect?: number | null;
     fatigueEffect?: number | null;
     qualityFlags?: QualityFlag[];
+    metadata?: Record<string, Primitive | Primitive[] | undefined>;
 }
 export interface NormBand {
     min?: number;

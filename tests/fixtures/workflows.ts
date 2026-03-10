@@ -1,29 +1,29 @@
 import type { NormTable, ScaleDefinition, TrialRecord } from "../../src";
 
 export const choiceReactionTimeTrials: TrialRecord[] = [
-  { id: "p1", isPractice: true, blockId: "practice", stimulusSide: "left", reactionTimeMs: 350, isCorrect: true },
-  { id: "p2", isPractice: true, blockId: "practice", stimulusSide: "right", reactionTimeMs: 330, isCorrect: true },
-  { id: "c1", blockId: "early", stimulusSide: "left", reactionTimeMs: 320, isCorrect: true },
-  { id: "c2", blockId: "early", stimulusSide: "right", reactionTimeMs: 340, isCorrect: true },
-  { id: "c3", blockId: "early", stimulusSide: "left", reactionTimeMs: 360, isCorrect: false },
-  { id: "c4", blockId: "early", stimulusSide: "right", reactionTimeMs: null, isCorrect: false },
-  { id: "c5", blockId: "early", stimulusSide: "left", reactionTimeMs: 120, isCorrect: false },
-  { id: "c6", blockId: "late", stimulusSide: "right", reactionTimeMs: 410, isCorrect: true },
-  { id: "c7", blockId: "late", stimulusSide: "left", reactionTimeMs: 390, isCorrect: true },
-  { id: "c8", blockId: "late", stimulusSide: "right", reactionTimeMs: 430, isCorrect: true },
-  { id: "c9", blockId: "late", stimulusSide: "left", reactionTimeMs: null, isCorrect: false },
-  { id: "c10", blockId: "late", stimulusSide: "right", reactionTimeMs: 440, isCorrect: false },
+  { id: "p1", isPractice: true, phase: "practice", trialIndex: 1, blockIndex: 0, blockId: "practice", stimulusSide: "left", responseSide: "left", reactionTimeMs: 350, isCorrect: true, labels: { scoringPhase: "practice", condition: "left" } },
+  { id: "p2", isPractice: true, phase: "practice", trialIndex: 2, blockIndex: 0, blockId: "practice", stimulusSide: "right", responseSide: "right", reactionTimeMs: 330, isCorrect: true, labels: { scoringPhase: "practice", condition: "right" } },
+  { id: "c1", phase: "scored", trialIndex: 3, blockIndex: 1, blockId: "early", stimulusSide: "left", responseSide: "left", reactionTimeMs: 320, isCorrect: true, labels: { scoringPhase: "scored", condition: "left" } },
+  { id: "c2", phase: "scored", trialIndex: 4, blockIndex: 1, blockId: "early", stimulusSide: "right", responseSide: "right", reactionTimeMs: 340, isCorrect: true, labels: { scoringPhase: "scored", condition: "right" } },
+  { id: "c3", phase: "scored", trialIndex: 5, blockIndex: 1, blockId: "early", stimulusSide: "left", responseSide: "left", reactionTimeMs: 360, isCorrect: false, labels: { scoringPhase: "scored", condition: "left" } },
+  { id: "c4", phase: "scored", trialIndex: 6, blockIndex: 1, blockId: "early", stimulusSide: "right", responseSide: "right", reactionTimeMs: null, isCorrect: false, isOmission: true, labels: { scoringPhase: "scored", condition: "right" } },
+  { id: "c5", phase: "scored", trialIndex: 7, blockIndex: 1, blockId: "early", stimulusSide: "left", responseSide: "left", reactionTimeMs: 120, isCorrect: false, isAnticipation: true, labels: { scoringPhase: "scored", condition: "left" } },
+  { id: "c6", phase: "scored", trialIndex: 8, blockIndex: 2, blockId: "late", stimulusSide: "right", responseSide: "right", reactionTimeMs: 410, isCorrect: true, labels: { scoringPhase: "scored", condition: "right" } },
+  { id: "c7", phase: "scored", trialIndex: 9, blockIndex: 2, blockId: "late", stimulusSide: "left", responseSide: "left", reactionTimeMs: 390, isCorrect: true, labels: { scoringPhase: "scored", condition: "left" } },
+  { id: "c8", phase: "scored", trialIndex: 10, blockIndex: 2, blockId: "late", stimulusSide: "right", responseSide: "right", reactionTimeMs: 430, isCorrect: true, labels: { scoringPhase: "scored", condition: "right" } },
+  { id: "c9", phase: "scored", trialIndex: 11, blockIndex: 2, blockId: "late", stimulusSide: "left", responseSide: "left", reactionTimeMs: null, isCorrect: false, isOmission: true, labels: { scoringPhase: "scored", condition: "left" } },
+  { id: "c10", phase: "scored", trialIndex: 12, blockIndex: 2, blockId: "late", stimulusSide: "right", responseSide: "right", reactionTimeMs: 440, isCorrect: false, labels: { scoringPhase: "scored", condition: "right" } },
 ];
 
 export const simpleReactionTimeTrials: TrialRecord[] = [
-  { id: "s1", blockId: "early", reactionTimeMs: 280, isCorrect: true },
-  { id: "s2", blockId: "early", reactionTimeMs: 295, isCorrect: true },
-  { id: "s3", blockId: "early", reactionTimeMs: 310, isCorrect: true },
-  { id: "s4", blockId: "early", reactionTimeMs: 130, isCorrect: false },
-  { id: "s5", blockId: "late", reactionTimeMs: 500, isCorrect: true },
-  { id: "s6", blockId: "late", reactionTimeMs: 2200, isCorrect: true },
-  { id: "s7", blockId: "late", reactionTimeMs: null, isCorrect: false },
-  { id: "s8", blockId: "late", reactionTimeMs: 320, isCorrect: true },
+  { id: "s1", phase: "scored", blockId: "early", blockIndex: 1, trialIndex: 1, reactionTimeMs: 280, isCorrect: true },
+  { id: "s2", phase: "scored", blockId: "early", blockIndex: 1, trialIndex: 2, reactionTimeMs: 295, isCorrect: true },
+  { id: "s3", phase: "scored", blockId: "early", blockIndex: 1, trialIndex: 3, reactionTimeMs: 310, isCorrect: true },
+  { id: "s4", phase: "scored", blockId: "early", blockIndex: 1, trialIndex: 4, reactionTimeMs: 130, isCorrect: false, isAnticipation: true },
+  { id: "s5", phase: "scored", blockId: "late", blockIndex: 2, trialIndex: 5, reactionTimeMs: 500, isCorrect: true },
+  { id: "s6", phase: "scored", blockId: "late", blockIndex: 2, trialIndex: 6, reactionTimeMs: 2200, isCorrect: true },
+  { id: "s7", phase: "scored", blockId: "late", blockIndex: 2, trialIndex: 7, reactionTimeMs: null, isCorrect: false, isOmission: true },
+  { id: "s8", phase: "scored", blockId: "late", blockIndex: 2, trialIndex: 8, reactionTimeMs: 320, isCorrect: true },
 ];
 
 export const spanTaskTrials: TrialRecord<number>[] = [
@@ -36,6 +36,7 @@ export const spanTaskTrials: TrialRecord<number>[] = [
     responses: [1, 2],
     latencyMs: 700,
     durationMs: 1500,
+    labels: { direction: "forward", scoringPhase: "practice" },
     metadata: { direction: "forward" },
   },
   {
@@ -46,6 +47,7 @@ export const spanTaskTrials: TrialRecord<number>[] = [
     responses: [1, 2],
     latencyMs: 600,
     durationMs: 1400,
+    labels: { direction: "forward", scoringPhase: "scored" },
     metadata: { direction: "forward" },
   },
   {
@@ -56,6 +58,8 @@ export const spanTaskTrials: TrialRecord<number>[] = [
     responses: [2, 1, 4],
     latencyMs: 650,
     durationMs: 2100,
+    errorTaxonomy: { primary: "order-error" },
+    labels: { direction: "forward", scoringPhase: "scored" },
     metadata: { direction: "forward" },
   },
   {
@@ -66,6 +70,7 @@ export const spanTaskTrials: TrialRecord<number>[] = [
     responses: [3, 1, 4],
     latencyMs: 620,
     durationMs: 2000,
+    labels: { direction: "forward", scoringPhase: "scored" },
     metadata: { direction: "forward" },
   },
   {
@@ -76,6 +81,7 @@ export const spanTaskTrials: TrialRecord<number>[] = [
     responses: [4, 2, 3, 1],
     latencyMs: 700,
     durationMs: 2600,
+    labels: { direction: "backward", scoringPhase: "scored" },
     metadata: { direction: "backward" },
   },
   {
@@ -86,6 +92,8 @@ export const spanTaskTrials: TrialRecord<number>[] = [
     responses: [1, 3, 2, 2],
     latencyMs: 730,
     durationMs: 2700,
+    errorTaxonomy: { primary: "repetition" },
+    labels: { direction: "backward", scoringPhase: "scored" },
     metadata: { direction: "backward" },
   },
   {
@@ -96,6 +104,7 @@ export const spanTaskTrials: TrialRecord<number>[] = [
     responses: [5, 1, 4, 2, 3],
     latencyMs: 750,
     durationMs: 3200,
+    labels: { direction: "backward", scoringPhase: "scored" },
     metadata: { direction: "backward" },
   },
 ];
@@ -110,12 +119,19 @@ export const goNoGoTrials: TrialRecord<string>[] = [
 ];
 
 export const flankerTrials: TrialRecord<string>[] = [
-  { id: "f1", blockId: "block-1", reactionTimeMs: 410, response: "left", isCorrect: true, labels: { congruency: "congruent", condition: "congruent" } },
-  { id: "f2", blockId: "block-1", reactionTimeMs: 420, response: "right", isCorrect: true, labels: { congruency: "congruent", condition: "congruent" } },
-  { id: "f3", blockId: "block-1", reactionTimeMs: 510, response: "left", isCorrect: true, labels: { congruency: "incongruent", condition: "incongruent" } },
-  { id: "f4", blockId: "block-1", reactionTimeMs: 530, response: "right", isCorrect: true, labels: { congruency: "incongruent", condition: "incongruent" } },
-  { id: "f5", blockId: "block-2", reactionTimeMs: 470, response: "left", isCorrect: true, labels: { switchType: "repeat", condition: "repeat" } },
-  { id: "f6", blockId: "block-2", reactionTimeMs: 550, response: "right", isCorrect: true, labels: { switchType: "switch", condition: "switch" } },
+  { id: "f1", trialIndex: 1, blockId: "block-1", reactionTimeMs: 410, response: "left", responseSide: "left", cue: "arrow", cueMetadata: { taskSet: "spatial" }, isCorrect: true, labels: { congruency: "congruent", condition: "congruent", cueValidity: "valid" } },
+  { id: "f2", trialIndex: 2, blockId: "block-1", reactionTimeMs: 420, response: "right", responseSide: "right", cue: "arrow", cueMetadata: { taskSet: "spatial" }, isCorrect: true, labels: { congruency: "congruent", condition: "congruent", cueValidity: "valid" } },
+  { id: "f3", trialIndex: 3, blockId: "block-1", reactionTimeMs: 510, response: "left", responseSide: "left", cue: "arrow", cueMetadata: { taskSet: "spatial" }, isCorrect: true, labels: { congruency: "incongruent", condition: "incongruent", cueValidity: "invalid" } },
+  { id: "f4", trialIndex: 4, blockId: "block-1", reactionTimeMs: 530, response: "right", responseSide: "right", cue: "arrow", cueMetadata: { taskSet: "spatial" }, isCorrect: true, labels: { congruency: "incongruent", condition: "incongruent", cueValidity: "invalid" } },
+];
+
+export const taskSwitchingTrials: TrialRecord<string>[] = [
+  { id: "ts1", trialIndex: 1, blockId: "single", cue: "color", reactionTimeMs: 450, response: "left", responseSide: "left", isCorrect: true, labels: { switchType: "repeat", condition: "single", taskSet: "color", cueType: "color" }, metadata: { taskContext: "single" } },
+  { id: "ts2", trialIndex: 2, blockId: "single", cue: "shape", reactionTimeMs: 470, response: "right", responseSide: "right", isCorrect: true, labels: { switchType: "repeat", condition: "single", taskSet: "shape", cueType: "shape" }, metadata: { taskContext: "single" } },
+  { id: "ts3", trialIndex: 3, blockId: "mixed", cue: "color", reactionTimeMs: 520, response: "left", responseSide: "left", isCorrect: true, labels: { switchType: "repeat", condition: "repeat", taskSet: "color", cueType: "color" } },
+  { id: "ts4", trialIndex: 4, blockId: "mixed", cue: "shape", reactionTimeMs: 540, response: "right", responseSide: "right", isCorrect: true, labels: { switchType: "repeat", condition: "repeat", taskSet: "shape", cueType: "shape" } },
+  { id: "ts5", trialIndex: 5, blockId: "mixed", cue: "color", reactionTimeMs: 610, response: "left", responseSide: "left", isCorrect: true, labels: { switchType: "switch", condition: "switch", taskSet: "color", cueType: "color" } },
+  { id: "ts6", trialIndex: 6, blockId: "mixed", cue: "shape", reactionTimeMs: 630, response: "right", responseSide: "right", isCorrect: true, labels: { switchType: "switch", condition: "switch", taskSet: "shape", cueType: "shape" } },
 ];
 
 export const recognitionMemoryTrials: TrialRecord<string>[] = [

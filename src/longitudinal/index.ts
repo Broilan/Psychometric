@@ -1,4 +1,4 @@
-import type { QualityFlag, SessionComparisonResult } from "../schemas";
+import type { QualityFlag, SessionComparisonMetric, SessionComparisonResult } from "../schemas";
 import { reliableChangeIndex } from "../scores";
 
 export interface SessionComparisonInput {
@@ -6,6 +6,7 @@ export interface SessionComparisonInput {
   protocolId?: string;
   protocolVersion?: string;
   metrics: Record<string, number | null | undefined>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
 }
 
 export interface CompareSessionsOptions {
@@ -13,6 +14,7 @@ export interface CompareSessionsOptions {
   reliability?: number;
   practiceMetricKey?: string;
   fatigueMetricKey?: string;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
 }
 
 export function compareSessions(
@@ -41,7 +43,7 @@ export function compareSessions(
     });
   }
 
-  const metrics = keys.map((key) => {
+  const metrics: SessionComparisonMetric[] = keys.map((key) => {
     const baselineValue = baseline.metrics[key] ?? null;
     const followUpValue = followUp.metrics[key] ?? null;
     const change = baselineValue === null || followUpValue === null ? null : followUpValue - baselineValue;
@@ -58,11 +60,13 @@ export function compareSessions(
       change,
       percentChange,
       reliableChangeIndex: rci,
+      direction: change === null || change === 0 ? "no-change" : change > 0 ? "increase" : "decrease",
     };
   });
 
   return {
     summaryType: "session-comparison",
+    schemaVersion: "1.0.0",
     baselineSessionId: baseline.sessionId,
     followUpSessionId: followUp.sessionId,
     protocolCompatible,
@@ -71,5 +75,6 @@ export function compareSessions(
     practiceEffect: options.practiceMetricKey ? metrics.find((metric) => metric.key === options.practiceMetricKey)?.change ?? null : null,
     fatigueEffect: options.fatigueMetricKey ? metrics.find((metric) => metric.key === options.fatigueMetricKey)?.change ?? null : null,
     qualityFlags,
+    metadata: options.metadata,
   };
 }

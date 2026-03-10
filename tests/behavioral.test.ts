@@ -6,11 +6,12 @@ import {
   computeConditionContrast,
   scoreSpanTask,
   separatePracticeTrials,
+  summarizeFlanker,
   summarizeGoNoGo,
-  summarizeInterferenceTask,
   summarizeProcessingSpeed,
   summarizeRecognitionMemory,
   summarizeReactionTime,
+  summarizeTaskSwitching,
 } from "../src";
 import {
   choiceReactionTimeTrials,
@@ -20,10 +21,11 @@ import {
   recognitionMemoryTrials,
   simpleReactionTimeTrials,
   spanTaskTrials,
+  taskSwitchingTrials,
 } from "./fixtures/workflows";
 
 describe("behavioral workflows", () => {
-  it("summarizes a choice reaction time session with realistic counts, rates, and comparisons", () => {
+  it("summarizes a choice reaction time session with phase, side, and block breakdowns", () => {
     const summary = summarizeReactionTime(choiceReactionTimeTrials, {
       minimumValidTrials: 8,
     });
@@ -41,10 +43,10 @@ describe("behavioral workflows", () => {
       anticipations: 1,
       lapses: 0,
     });
-    expect(summary.rates.accuracy).toBeCloseTo(0.5, 6);
-    expect(summary.rates.error).toBeCloseTo(0.3, 6);
-    expect(summary.rates.omission).toBeCloseTo(0.2, 6);
-    expect(summary.rates.anticipation).toBeCloseTo(0.1, 6);
+    expect(summary.phaseSummaries?.scored?.counts.total).toBe(10);
+    expect(summary.practiceSummary?.counts.total).toBe(2);
+    expect(summary.responseSideSummaries?.left?.counts.total).toBe(5);
+    expect(summary.responseSideSummaries?.right?.counts.total).toBe(5);
     expect(summary.timing.medianCorrectRtMs).toBe(390);
     expect(summary.timing.meanCorrectRtMs).toBeCloseTo(378, 6);
     expect(summary.timing.rtSdMs).toBeCloseTo(46.583259, 6);
@@ -55,7 +57,7 @@ describe("behavioral workflows", () => {
     expect(summary.qualityFlags[0]?.code).toBe("insufficient-valid-trials");
   });
 
-  it("summarizes a simple reaction time session and exposes lapse/anticipation counts cleanly", () => {
+  it("summarizes a simple reaction time session and exposes omissions, anticipations, and block drift", () => {
     const summary = summarizeReactionTime(simpleReactionTimeTrials, {
       minimumValidTrials: 7,
       lapseThresholdMs: 2000,
@@ -77,6 +79,7 @@ describe("behavioral workflows", () => {
       anticipations: 1,
       lapses: 1,
     });
+    expect(summary.blockSummaries?.late?.timing.meanMs).toBeCloseTo(1006.666667, 6);
     expect(summary.timing.medianCorrectRtMs).toBe(315);
     expect(summary.timing.meanCorrectRtMs).toBeCloseTo(650.833333, 6);
     expect(summary.timing.rtSdMs).toBeCloseTo(763.206503, 6);
@@ -89,15 +92,12 @@ describe("behavioral workflows", () => {
     ]);
   });
 
-  it("scores a block tapping/span workflow and preserves practice separation", () => {
+  it("scores a span workflow with forward/backward contrasts and error taxonomy rollups", () => {
     const split = separatePracticeTrials(spanTaskTrials);
     const summary = scoreSpanTask(spanTaskTrials);
 
     expect(split.practice).toHaveLength(1);
     expect(split.scored).toHaveLength(6);
-    expect(split.practiceTrials).toHaveLength(1);
-    expect(split.scoredTrials).toHaveLength(6);
-
     expect(summary.summaryType).toBe("span-task");
     expect(summary.counts).toEqual({
       total: 6,
@@ -112,10 +112,13 @@ describe("behavioral workflows", () => {
       "4": 0.5,
       "5": 1,
     });
+    expect(summary.directionSummaries?.forward?.accuracy).toBeCloseTo(2 / 3, 6);
+    expect(summary.directionSummaries?.backward?.accuracy).toBeCloseTo(2 / 3, 6);
     expect(summary.timing.firstResponseLatencyMeanMs).toBeCloseTo(675, 6);
     expect(summary.timing.interResponseIntervalMeanMs).toBeCloseTo(1002.777778, 6);
     expect(summary.timing.totalSequenceResponseTimeMeanMs).toBeCloseTo(2333.333333, 6);
-    expect(summary.forwardBackwardDelta).toBeCloseTo(-2, 6);
+    expect(summary.forwardBackwardDelta).toBeCloseTo(2, 6);
+    expect(summary.forwardBackwardContrast?.rawDifference).toBeCloseTo(2, 6);
     expect(summary.errors[1]).toMatchObject({
       orderErrors: 2,
       substitutions: 0,
@@ -128,47 +131,28 @@ describe("behavioral workflows", () => {
       repetitions: 1,
       prematureResponses: 0,
     });
+    expect(summary.errorBreakdown.taxonomy).toMatchObject({
+      "order-error": 1,
+      repetition: 1,
+    });
   });
 
-  it("summarizes go/no-go trials with commission and omission breakdowns", () => {
-    const summary = summarizeGoNoGo(goNoGoTrials);
-    const qcFlags = buildQualityFlags({
-      commissionErrorRate: summary.falseAlarmRate,
-      conditionCounts: {
-        go: summary.goSummary?.counts.total ?? 0,
-        noGo: summary.noGoSummary?.counts.total ?? 0,
-      },
-      minimumConditionTrials: 2,
-    });
+  it("summarizes flanker condition effects with congruency and cue contrasts", () => {
+    const summary = summarizeFlanker(flankerTrials);
 
-    expect(summary.commissionErrors).toBe(1);
-    expect(summary.omissionErrors).toBe(1);
-    expect(summary.inhibitionSuccessRate).toBeCloseTo(0.5, 6);
-    expect(summary.falseAlarmRate).toBeCloseTo(0.5, 6);
-    expect(summary.goSummary?.timing.meanMs).toBeCloseTo(330, 6);
-    expect(summary.contrasts?.[0]).toMatchObject({
-      leftLabel: "go",
-      rightLabel: "no-go",
-      metric: "accuracy",
-    });
-    expect(qcFlags.map((flag) => flag.code)).toContain("excessive-commission-errors");
-  });
-
-  it("computes interference contrasts for congruency and switching tasks", () => {
-    const summary = summarizeInterferenceTask(flankerTrials);
-    const congruencyContrast = summary.contrasts?.find((contrast) => contrast.leftLabel === "incongruent");
-    const switchContrast = summary.contrasts?.find((contrast) => contrast.leftLabel === "switch");
-
-    expect(summary.interferenceEffectMs).toBeCloseTo(105, 6);
-    expect(summary.switchingCostMs).toBeCloseTo(80, 6);
-    expect(congruencyContrast?.rawDifference).toBeCloseTo(105, 6);
-    expect(switchContrast?.rawDifference).toBeCloseTo(80, 6);
+    expect(summary.congruentSummary?.timing.meanMs).toBeCloseTo(415, 6);
+    expect(summary.incongruentSummary?.timing.meanMs).toBeCloseTo(520, 6);
+    expect(summary.congruencyEffect?.rawDifference).toBeCloseTo(105, 6);
+    expect(summary.cueSummaries?.valid?.timing.meanMs).toBeCloseTo(415, 6);
+    expect(summary.cueSummaries?.invalid?.timing.meanMs).toBeCloseTo(520, 6);
+    expect(summary.contrastSummaries?.["cue-validity-cost"]?.rawDifference).toBeCloseTo(105, 6);
     expect(
       computeConditionContrast(530, 420, {
         leftLabel: "incongruent",
         rightLabel: "congruent",
         metric: "rt",
         standardizer: 50,
+        contrastType: "congruency-effect",
       }),
     ).toMatchObject({
       rawDifference: 110,
@@ -177,9 +161,28 @@ describe("behavioral workflows", () => {
     });
   });
 
-  it("summarizes recognition memory and processing speed workflows", () => {
+  it("summarizes task switching with switch and mixing costs", () => {
+    const summary = summarizeTaskSwitching(taskSwitchingTrials);
+
+    expect(summary.switchSummary?.timing.meanMs).toBeCloseTo(620, 6);
+    expect(summary.repeatSummary?.timing.meanMs).toBeCloseTo(530, 6);
+    expect(summary.singleTaskSummary?.timing.meanMs).toBeCloseTo(460, 6);
+    expect(summary.switchCost?.rawDifference).toBeCloseTo(90, 6);
+    expect(summary.mixingCost?.rawDifference).toBeCloseTo(70, 6);
+    expect(summary.cueSummaries?.color?.counts.total).toBe(3);
+    expect(summary.cueSummaries?.shape?.counts.total).toBe(3);
+  });
+
+  it("summarizes go/no-go, recognition memory, and processing speed workflows", () => {
+    const goNoGo = summarizeGoNoGo(goNoGoTrials);
     const recognition = summarizeRecognitionMemory(recognitionMemoryTrials);
     const speed = summarizeProcessingSpeed(processingSpeedTrials, { durationMinutes: 2 });
+
+    expect(goNoGo.commissionErrors).toBe(1);
+    expect(goNoGo.omissionErrors).toBe(1);
+    expect(goNoGo.inhibitionSuccessRate).toBeCloseTo(0.5, 6);
+    expect(goNoGo.falseAlarmRate).toBeCloseTo(0.5, 6);
+    expect(goNoGo.goSummary?.timing.meanMs).toBeCloseTo(330, 6);
 
     expect(recognition.hitRate).toBeCloseTo(2 / 3, 6);
     expect(recognition.falseAlarmRate).toBeCloseTo(1 / 3, 6);

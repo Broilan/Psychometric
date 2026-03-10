@@ -17,11 +17,14 @@ export {
   summarizeLatency,
   summarizeConditionedReactionTime,
   summarizeGoNoGo,
+  summarizeFlanker,
   summarizeInterferenceTask,
   summarizePairedAssociates,
   summarizeProcessingSpeed,
   summarizeRecognitionMemory,
   summarizeReactionTime,
+  summarizeTaskSwitching,
+  type FlankerSummary,
   type GoNoGoSummary,
   type InterferenceTaskSummary,
   type PairedAssociatesSummary,
@@ -32,6 +35,8 @@ export {
   type ReactionTimeTrialClassification,
   type SequenceErrorSummary,
   type SpanTaskSummary,
+  type TaskSwitchingOptions,
+  type TaskSwitchingSummary,
 } from "./behavioral";
 
 export {
